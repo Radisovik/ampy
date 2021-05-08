@@ -82,7 +82,7 @@ kotlin {
 }
 
 application {
-    mainClassName = "ServerKt"
+    mainClassName = "world.amplus.server.ServerKt"
 }
 
 tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack") {

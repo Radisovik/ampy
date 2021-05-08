@@ -1,3 +1,5 @@
+package world.amplus.common
+
 import kotlinx.serialization.*
 
 @Serializable
@@ -15,7 +17,7 @@ enum class CType {
 }
 
 @Serializable
-data class FromServer(val type :SType) {
+data class FromServer(val type : SType) {
     var pong: Pong? = null
     companion object {
         fun pong(id: Double) = FromServer(SType.PONG).apply { pong = Pong(id) }
@@ -23,7 +25,7 @@ data class FromServer(val type :SType) {
 }
 
 @Serializable
-data class FromClient(val type:CType) {
+data class FromClient(val type: CType) {
     var ping: Ping? = null
     companion object {
         fun ping(time: Double): FromClient {

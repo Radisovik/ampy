@@ -1,13 +1,15 @@
+package world.amplus.webclient
+
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.serialization.decodeFromHexString
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToHexString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.WebSocket
+import world.amplus.common.FromClient
+import world.amplus.common.FromServer
+import world.amplus.common.SType
 import kotlin.js.Date
 
 fun main() {
@@ -19,7 +21,7 @@ var ws :WebSocket? = null
 
 fun url() :String {
      return if (window.location.hostname=="localhost") {
-        "ws://localhost:8080/socket"
+        "world.amplus.webclient.getWs://localhost:8080/socket"
     } else {
         "wss://${window.location.hostname}:8080/socket"
     }
@@ -36,7 +38,7 @@ fun setupSocket() {
     }
     lws.onopen = fun (evt) {
         msg("web socket opened!! $evt")
-        window.setInterval({firePing()}, 1000)
+        window.setInterval({ firePing() }, 1000)
     }
     lws.onmessage = fun(msg:MessageEvent) {
         println("Message type: ${msg.data}")
@@ -45,7 +47,7 @@ fun setupSocket() {
         when (fs.type) {
             SType.PONG -> {
                 val delta = fs.pong!!.time -  Date.now()
-                msg("Ping ${delta}ms")
+                msg("world.amplus.common.Ping ${delta}ms")
 
             }
             SType.TIME -> TODO()

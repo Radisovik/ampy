@@ -1,0 +1,17 @@
+runtime: custom
+env: flex
+
+runtime_config:
+  jdk: openjdk8
+
+handlers:
+  - url: /.*
+    script: this field is required, but ignored
+
+network:
+  session_affinity: true
+
+instance_class: b1
+
+manual_scaling:
+  instances: 1

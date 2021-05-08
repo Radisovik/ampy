@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="amplus-js-1.0-SNAPSHOT">
+    <output-path>C:\Users\ehubbard\IdeaProjects\amplus\build\libs</output-path>
+    <root id="archive" name="amplus-js-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="amplus.jsMain" />
+    </root>
+  </artifact>
+</component>

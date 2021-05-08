@@ -69,6 +69,8 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.2.0")
+                implementation(npm("three", "^0.120.0", generateExternals = false))
+                implementation(npm("stats-js", "1.0.1", generateExternals = false))
 
             }
         }

@@ -1,5 +1,6 @@
 package world.amplus.webclient
 
+import ext.aspectRatio
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.serialization.decodeFromHexString
@@ -12,7 +13,10 @@ import world.amplus.common.FromServer
 import world.amplus.common.SType
 import kotlin.js.Date
 
+
+
 fun main() {
+    Game().animate()
     window.onload = fun(evt) {
         setupSocket()
     }

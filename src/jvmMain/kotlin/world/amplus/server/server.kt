@@ -34,10 +34,27 @@ fun HTML.index() {
         script(src = "/static/js.js") {}
     }
 }
+val logger = Logger.getLogger("Server")
+
+fun pickPort(): Int {
+    val osname = System.getProperty("os.name")
+
+    val rtn = if (osname.contains("windows", true) ||
+        osname.contains("Mac OS X", true)
+    ) {
+        8081
+    } else {
+        8080
+    }
+    logger.info("Running on $osname will use port $rtn")
+    return rtn
+}
 
 fun main() {
-    val logger = Logger.getLogger("Server")
-    embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
+    val port = pickPort()
+
+
+    embeddedServer(Netty, port = port, host = "127.0.0.1") {
         install(WebSockets)
 
         routing {

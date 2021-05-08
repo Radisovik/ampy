@@ -21,7 +21,7 @@ var ws :WebSocket? = null
 
 fun url() :String {
      return if (window.location.hostname=="localhost") {
-        "world.amplus.webclient.getWs://localhost:8080/socket"
+        "ws://localhost:8080/socket"
     } else {
         "wss://${window.location.hostname}:8080/socket"
     }
@@ -47,7 +47,7 @@ fun setupSocket() {
         when (fs.type) {
             SType.PONG -> {
                 val delta = fs.pong!!.time -  Date.now()
-                msg("world.amplus.common.Ping ${delta}ms")
+                msg("Ping ${delta}ms")
 
             }
             SType.TIME -> TODO()

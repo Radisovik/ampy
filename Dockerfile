@@ -5,5 +5,7 @@ RUN mv /amplus-1.0-SNAPSHOT /amplus
 WORKDIR /amplus
 ADD build/libs/amplus-jvm-1.0-SNAPSHOT.jar /amplus/lib
 ADD go.sh /amplus/bin
+ADD www /amplus/www
+RUN chmod +x /amplus/bin/go.sh
 EXPOSE 8080
-ENTRYPOINT ["/amplus/bin/go.sh"]
+CMD ["/amplus/bin/go.sh"]

@@ -54,6 +54,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.2.0")
+                implementation("ch.qos.logback:logback-classic:1.0.13")
 
 
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
@@ -66,8 +67,6 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
-                implementation("org.jetbrains:kotlin-react:17.0.1-pre.148-kotlin-1.4.30")
-                implementation("org.jetbrains:kotlin-react-dom:17.0.1-pre.148-kotlin-1.4.30")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.2.0")
 
@@ -86,7 +85,7 @@ application {
 }
 
 tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack") {
-    outputFileName = "js.js"
+    outputFileName = "amplus_packed.js"
 }
 
 tasks.getByName<Jar>("jvmJar") {

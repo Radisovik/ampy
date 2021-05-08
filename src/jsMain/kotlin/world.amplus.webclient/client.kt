@@ -20,11 +20,12 @@ fun main() {
 var ws :WebSocket? = null
 
 fun url() :String {
-     return if (window.location.hostname=="localhost") {
-        "world.amplus.webclient.getWs://localhost:8080/socket"
-    } else {
-        "wss://${window.location.hostname}:8080/socket"
-    }
+    println("Original href ${window.location.href}")
+    var rtn = window.location.href.replace("https", "wss")
+    rtn = rtn.replace("http","ws")
+    rtn += "socket"
+    println("I think the websocket will be at $rtn")
+    return rtn
 }
 fun setupSocket() {
 
@@ -47,7 +48,7 @@ fun setupSocket() {
         when (fs.type) {
             SType.PONG -> {
                 val delta = fs.pong!!.time -  Date.now()
-                msg("world.amplus.common.Ping ${delta}ms")
+                msg("Ping ${delta}ms")
 
             }
             SType.TIME -> TODO()

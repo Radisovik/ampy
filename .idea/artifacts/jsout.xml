@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="jsout">
+    <output-path>$PROJECT_DIR$/www/genjs</output-path>
+    <root id="root">
+      <element id="module-output" name="amplus.jsMain" />
+    </root>
+  </artifact>
+</component>

@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+       #ping {
+           top: 0;
+           text-align: right;
+           color: red;
+           z-index: 2;
+           position:relative;
+       }
+       #position {
+           text-align: center;
+           top: 0;
+           color: red;
+           z-index: 2;
+           position:relative;
+       }
+       #renderarea {
+           position: fixed;
+           top: 0;
+           left: 0;
+           z-index: 1;
+       }
+    </style>
+
     <meta charset="UTF-8">
     <title>Amplus</title>
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -9,7 +32,11 @@
     <link rel="manifest" href="site.webmanifest">
 </head>
 <body>
-<div id="root"></div>
+<div id="root">
+</div>
+<div id="ping"></div>
+<div id="position"></div>
+<div id="renderarea"></div>
 <!--<script src="genjs/lib/kotlin.js"></script>-->
 <!--<script src="genjs/lib/kotlin-wrappers-kotlin-extensions-jsLegacy.js"></script>-->
 <!--<script src="genjs/lib/kotlinx-coroutines-core.js"></script>-->

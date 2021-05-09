@@ -55,9 +55,8 @@ fun setupSocket() {
         val fs = ProtoBuf.decodeFromHexString<FromServer>(data)
         when (fs.type) {
             SType.PONG -> {
-                val delta = fs.pong!!.time -  Date.now()
-                msg("Ping ${delta}ms")
-
+                val delta = Date.now() - fs.pong!!.time
+                document.getElementById("ping")?.innerHTML = "Ping ${delta}ms"
             }
             SType.TIME -> TODO()
         }
@@ -73,6 +72,6 @@ fun firePing() {
 }
 
 fun msg(msg :String) {
-    val root = document.getElementById("root")
+    val root = document.getElementById("ping")
     root?.innerHTML = msg
 }

@@ -28,7 +28,8 @@ class Game {
     }
     private val stats = Stats().apply {
         showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
-        document.body?.appendChild(domElement)
+        val root = document.getElementById("root")
+        root?.appendChild(domElement)
         with (domElement.style) {
             position="fixed"
             top="0px"
@@ -36,10 +37,13 @@ class Game {
         }
     }
 
+
     private val renderer = WebGLRenderer().apply {
-        document.body?.appendChild(domElement)
+        val renderarea = window.document.getElementById("renderarea")
+        renderarea?.appendChild(domElement)
         setSize(window.innerWidth, window.innerHeight)
         setPixelRatio(window.devicePixelRatio)
+
     }
     private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x00ffff) })
 
@@ -83,6 +87,11 @@ class Game {
             )
             val encodeToHexString = ProtoBuf.encodeToHexString(iat)
             ws?.send(encodeToHexString)
+            val ix = camera.position.x.toInt()
+            val iy = camera.position.y.toInt()
+            val iz = camera.position.z.toInt()
+            val pmsg = "($ix,$iy,$iz)"
+            document.getElementById("position")?.innerHTML = pmsg
             positionClock = now
         }
     }

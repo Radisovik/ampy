@@ -34,7 +34,7 @@ class Game {
         setSize(window.innerWidth, window.innerHeight)
         setPixelRatio(window.devicePixelRatio)
     }
-    private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x0000ff) })
+    private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0xffffff) })
 
     private val scene = Scene().apply {
         add(cube)

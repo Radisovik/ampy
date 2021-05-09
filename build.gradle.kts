@@ -17,6 +17,18 @@ repositories {
 }
 
 kotlin {
+
+    js(LEGACY) {
+        binaries.executable()
+        browser {
+            commonWebpackConfig {
+                cssSupport.enabled = true
+            }
+            distribution {
+                directory = file("$projectDir/www/genjs")
+            }
+        }
+    }
     jvm {
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
@@ -25,14 +37,6 @@ kotlin {
             useJUnit()
         }
         withJava()
-    }
-    js(LEGACY) {
-        binaries.executable()
-        browser {
-            commonWebpackConfig {
-                cssSupport.enabled = true
-            }
-        }
     }
     sourceSets {
         val commonMain by getting {
@@ -55,8 +59,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.2.0")
                 implementation("ch.qos.logback:logback-classic:1.0.13")
-
-
+                implementation("net.sf.trove4j:trove4j:2.1.0")
+                implementation("com.github.davidmoten:hilbert-curve:0.2.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
             }
         }

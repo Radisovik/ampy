@@ -46,7 +46,7 @@ fun setupSocket() {
         window.setInterval({ firePing() }, 1000)
     }
     lws.onmessage = fun(msg:MessageEvent) {
-        println("Message type: ${msg.data}")
+       // println("Message type: ${msg.data}")
         val data = msg.data.toString()
         val fs = ProtoBuf.decodeFromHexString<FromServer>(data)
         when (fs.type) {

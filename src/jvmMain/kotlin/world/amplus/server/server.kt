@@ -3,11 +3,8 @@ package world.amplus.server
 import world.amplus.common.FromClient
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.html.respondHtml
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.cio.websocket.*
 import io.ktor.http.content.*
-import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -16,8 +13,6 @@ import kotlinx.html.*
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.slf4j.event.Level
-import world.amplus.common.CType
-import world.amplus.common.FromServer
 import java.io.File
 import java.util.logging.Logger
 
@@ -74,27 +69,17 @@ fun main() {
         install(CallLogging) {
             level = Level.INFO
         }
-
         routing {
-
-//            get("/") {
-//                call.respondHtml(HttpStatusCode.OK, HTML::index)
-//            }
-//            static("/static") {
-//                resources()
-//            }
             webSocket("/socket") { // websocketSession
+                val cc = ConnectedClient(this)
                 for (frame in incoming) {
                     when (frame) {
                         is Frame.Text -> {
                             val text = frame.readText()
                             val fc = ProtoBuf.decodeFromHexString<FromClient>(text)
-                            when (fc.type) {
-                                CType.PING -> {
-                                    val pong = FromServer.pong(fc.ping!!.time)
-                                    this.send(ProtoBuf.encodeToHexString(pong))
-                                }
-                            }
+                            cc.process(fc)
+
+
                         }
                         else -> {
                             logger.warning("Unknown frame type: $frame")

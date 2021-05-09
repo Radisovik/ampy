@@ -115,6 +115,8 @@ private fun right(x: Int, radius: Int, y: Int, rr: Int, f: (x: Int, y: Int) -> U
 }
 
 
+
+
 fun distanceSquared(x: Int, y: Int, xx: Int, yy: Int): Int {
     val dx = x - xx
     val dy = y - yy

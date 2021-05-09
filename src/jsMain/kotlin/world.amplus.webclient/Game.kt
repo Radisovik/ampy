@@ -4,8 +4,15 @@ import ext.aspectRatio
 import ext.minus
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.serialization.encodeToHexString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.protobuf.ProtoBuf
 import stats.js.Stats
 import three.js.*
+import world.amplus.common.FromClient
+import world.amplus.common.V3f
+import kotlin.js.Date
+import kotlin.js.Json
 
 class Game {
     init {
@@ -34,7 +41,7 @@ class Game {
         setSize(window.innerWidth, window.innerHeight)
         setPixelRatio(window.devicePixelRatio)
     }
-    private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0xffffff) })
+    private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x00ffff) })
 
     private val scene = Scene().apply {
         add(cube)
@@ -43,7 +50,11 @@ class Game {
         add(AmbientLight(0x404040, 1))
     }
 
+    var positionClock = 0.toDouble()
     fun animate() {
+        val now = Date.now()
+        maybeSendPosition(now)
+
         stats.begin()
         val delta = clock.getDelta().toDouble()
 
@@ -56,4 +67,24 @@ class Game {
 
         window.requestAnimationFrame { animate() }
     }
+
+    private fun maybeSendPosition(now: Double) {
+        if (!connected) {
+            return
+        }
+        val deltaSinceLastPositionSend = now - positionClock
+        if (deltaSinceLastPositionSend > 100) {
+            val iat = FromClient.iamat(
+                V3f(
+                    camera.position.x.toFloat(),
+                    camera.position.y.toFloat(),
+                    camera.position.z.toFloat()
+                )
+            )
+            val encodeToHexString = ProtoBuf.encodeToHexString(iat)
+            ws?.send(encodeToHexString)
+            positionClock = now
+        }
+    }
 }
+

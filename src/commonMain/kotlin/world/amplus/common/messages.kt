@@ -10,7 +10,7 @@ enum class SType {
 
 @Serializable
 enum class CType {
-    PING,LOGIN_REQUEST
+    PING,LOGIN_REQUEST,IAMAT
 }
 
 @Serializable
@@ -24,13 +24,24 @@ data class FromServer(val type : SType) {
 @Serializable
 data class FromClient(val type: CType) {
     var ping: Ping? = null
+    var iamiat: IAmAt? = null
     companion object {
         fun ping(time: Double): FromClient {
             val mfc = FromClient(CType.PING)
             mfc.ping = Ping(time)
             return mfc
         }
+        fun iamat(v3i: V3f): FromClient {
+            val mfc = FromClient(CType.IAMAT)
+            mfc.iamiat = IAmAt(v3i)
+            return mfc
+        }
     }
+}
+
+@Serializable
+data class V3f(val x: Float, val y: Float, val z: Float) {
+    constructor() : this(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE)
 }
 
 @Serializable
@@ -61,6 +72,9 @@ enum class Side(val mask: Byte, val delta: V3i, private val otherSideOrd: Int) {
 
     fun other() = values()[otherSideOrd]
 }
+
+@Serializable
+data class IAmAt(val v3i: V3f)
 
 @Serializable
 data class LoginRequest(val time: Double)

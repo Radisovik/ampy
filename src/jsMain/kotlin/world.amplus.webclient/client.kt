@@ -22,6 +22,7 @@ fun main() {
     }
 }
 var ws :WebSocket? = null
+var connected = false;
 
 fun url() :String {
     println("Original href ${window.location.href}")
@@ -37,13 +38,16 @@ fun setupSocket() {
     val lws = WebSocket(url)
     lws.onclose = fun (evt) {
         msg("Web socket closed $evt")
+        connected=false
     }
     lws.onerror = fun (evt) {
         msg("web socket error $evt")
+        connected=false
     }
     lws.onopen = fun (evt) {
         msg("web socket opened!! $evt")
         window.setInterval({ firePing() }, 1000)
+        connected=true
     }
     lws.onmessage = fun(msg:MessageEvent) {
        // println("Message type: ${msg.data}")

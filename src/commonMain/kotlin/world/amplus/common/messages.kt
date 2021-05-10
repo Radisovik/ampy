@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 
 @Serializable
 enum class SType {
-    PONG, TIME, LOGIN_RESPONSE
+    PONG, TIME, LOGIN_RESPONSE, TERRAIN_UPDATE
 }
 
 
@@ -16,8 +16,10 @@ enum class CType {
 @Serializable
 data class FromServer(val type : SType) {
     var pong: Pong? = null
+    var terrainUpdate: TerrainUpdates? = null
     companion object {
         fun pong(id: Double) = FromServer(SType.PONG).apply { pong = Pong(id) }
+        fun terrainUpdate(tu:TerrainUpdates) = FromServer(SType.TERRAIN_UPDATE).apply { terrainUpdate = tu}
     }
 }
 
@@ -72,6 +74,16 @@ enum class Side(val mask: Byte, val delta: V3i, private val otherSideOrd: Int) {
 
     fun other() = values()[otherSideOrd]
 }
+
+
+//chunkName: ChunkName,
+//addTheseFaces: List<Long>,
+//textures: List<Int>,
+//removeFaces: List<Long>,
+//version: Int
+
+@Serializable
+data class TerrainUpdates(val cx:Int, val cy:Int, val addTheseFaces:List<Long>, val textures:List<Int>, val removeTheseFaces:List<Long>)
 
 @Serializable
 data class IAmAt(val v3i: V3f)

@@ -62,6 +62,9 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-RC")
+                implementation("com.google.code.gson:gson:2.8.6")
                 implementation("io.ktor:ktor-server-netty:1.5.2")
                 implementation("io.ktor:ktor-html-builder:1.5.2")
                 implementation("io.ktor:ktor-websockets:1.5.2")

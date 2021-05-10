@@ -61,6 +61,17 @@ class ClassicBlockStore(val world: String) : BlockStore {
     val EMPTY_LONG_ARRAY = LongArray(0)
     val listeners = HashMap<ChunkName, HashSet<BlockStoreListener>>()
 
+    @Synchronized
+    override fun subscribe(cn: ChunkName, version:Int, listener: BlockStoreListener) {
+            val chunk = chunk(cn)
+            if (chunk.version != version) { // if they didn't have the latest
+                val (longs, ints) = visit(cn)
+                listener.patchChange(cn, longs.asList(), ints.asList(), EMPTY_LONG_ARRAY.asList(), chunk.version)
+            }
+            listeners.getOrPut(cn) { HashSet() }.add(listener)
+    }
+
+
 
     @Synchronized
     override fun subscribe(chunks: Map<Long, Int>, listener: BlockStoreListener) {

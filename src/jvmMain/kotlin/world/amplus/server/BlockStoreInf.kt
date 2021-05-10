@@ -9,6 +9,8 @@ interface BlockStore {
     fun put(a: V3i, bt: BlockType)
     fun remove(a: V3i)
     fun unsubscribe(chunks: ChunkName, listener: BlockStoreListener)
+    fun subscribe(cn: ChunkName, version:Int, listener: BlockStoreListener)
+
     fun subscribe(chunks: Map<Long, Int>, listener: BlockStoreListener)
     fun get(x: Int, y: Int, z: Int): BlockType
 

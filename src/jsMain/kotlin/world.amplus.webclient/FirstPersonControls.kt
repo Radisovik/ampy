@@ -12,8 +12,11 @@ import three.js.Vector3
 import kotlin.math.PI
 
 class FirstPersonControls(val domElement: Element, val camera: Camera) {
-    var forward = 0
-    var right =0
+    var forward = false
+    var right =false
+    var left = false
+    var backward = false
+
     var mouseIsDown = false
     val _euler =  Euler( 0, 0, 0, "YXZ" )
     val _vector = Vector3()
@@ -32,15 +35,15 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
 
                     _euler.setFromQuaternion(camera.quaternion);
 
-                    _euler.y -= movementX * 0.002;
-                    _euler.x -= movementY * 0.002;
+                    _euler.y -= movementX * 0.01;
+                    _euler.x -= movementY * 0.01;
                     _euler.x = kotlin.math.max(
                         _PI_2 - maxPolarAngle,
                         kotlin.math.min(_PI_2 - minPolarAngle, _euler.x.toDouble())
                     );
                     camera.quaternion.setFromEuler(_euler);
 
-                    println("Mouse moved ${event.clientX}, ${event.clientY}")
+                  //  println("Mouse moved ${event.clientX}, ${event.clientY}")
                 }
             }
         })
@@ -56,27 +59,28 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
             if (evt is KeyboardEvent) {
                 val value = true
                 when(evt.keyCode) {
-                    87 -> forward +=1
-                    83 -> forward -=1
-                    68 -> right +=1
-                    65 -> right -=1
+                    87 -> forward = true
+                    83 -> backward = true
+                    68 -> right = true
+                    65 -> left = true
+                    else -> {
+                        println("key down ${evt.code} .. ${evt.key}  ..  ${evt.keyCode}")
+                    }
                 }
-
-                println("key down ${evt.code} .. ${evt.key}  ..  ${evt.keyCode}")
             }
         })
         window.document.addEventListener("keyup", {evt ->
             if (evt is KeyboardEvent) {
                 val value = false
                 when(evt.keyCode) {
-                    87 -> forward -=1
-                    83 -> forward +=1
-                    68 -> right -=1
-                    65 -> right +=1
-
-
+                    87 -> forward = false
+                    83 -> backward = false
+                    68 -> right = false
+                    65 -> left = false
+                    else -> {
+                        println("key up ${evt.code} .. ${evt.key}  ..  ${evt.keyCode}")
+                    }
                 }
-                println("key up ${evt.code} .. ${evt.key}  ..  ${evt.keyCode}")
             }
         })
 //        window.document.addEventListener("keypress", {evt ->
@@ -98,19 +102,33 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
     var mdx=0
     var mdy=0
 
-    fun update() {
+    fun forward(distance:Int) {
+        // move forward parallel to the xz-plane
+        // assumes camera.up is y-up
+        _vector.setFromMatrixColumn( camera.matrix, 0 )
+        _vector.crossVectors( camera.up, _vector )
+        camera.position.addScaledVector( _vector, distance )
+    }
 
-        if (forward !=0) {
-            // move forward parallel to the xz-plane
-            // assumes camera.up is y-up
-            _vector.setFromMatrixColumn( camera.matrix, 0 );
-            _vector.crossVectors( camera.up, _vector );
-            camera.position.addScaledVector( _vector, forward );
+    fun right(distance:Int) {
+        _vector.setFromMatrixColumn( camera.matrix, 0 )
+        camera.position.addScaledVector( _vector, distance )
+    }
+
+    fun update() {
+        if (forward) {
+            forward(1)
         }
-        if(right !=0) {
-            _vector.setFromMatrixColumn( camera.matrix, 0 );
-            camera.position.addScaledVector( _vector, right );
+        if (backward) {
+            forward(-1)
         }
+        if (left) {
+            right(-1)
+        }
+        if(right) {
+            right(1)
+        }
+
 
 
     }

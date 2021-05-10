@@ -2,23 +2,30 @@ package world.amplus.server
 
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToHexString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
-import world.amplus.common.CType
-import world.amplus.common.FromClient
-import world.amplus.common.FromServer
+import world.amplus.common.*
 import java.util.stream.Collectors
+import com.google.gson.*
 
 class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener {
     var currentWorld : String = "root"
     var currentChunk = ChunkName()
     val subscribedTo = HashSet<ChunkName>()
     val bs = BlockStores.blockStore(currentWorld)
+    init {
+        bs.put(V3i(2,2,2), BlockType.DIRT)
+    }
     suspend fun process(fc: FromClient) {
         when (fc.type) {
             CType.PING -> {
                 val pong = FromServer.pong(fc.ping!!.time)
-                ws.send(ProtoBuf.encodeToHexString(pong))
+                ws.send(pong.encodeToString())
             }
             CType.LOGIN_REQUEST -> TODO()
             CType.IAMAT -> {
@@ -26,8 +33,7 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
                 val nextChunk = ChunkName(currentWorld, iat.v3i.x, iat.v3i.z)
                 if (nextChunk != currentChunk) {
 
-
-                    val newChunks = nextChunk.myNeightbors(5)
+                    val newChunks = nextChunk.myNeightbors(2)
 
                     val toAdd = newChunks.stream()
                         .filter { !subscribedTo.contains(it) }
@@ -38,14 +44,18 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
                         .filter { !newChunks.contains(it) }
                         .collect(Collectors.toSet())
 
+
                     for (chunkName in toAdd) {
                         logger.info("Add subscribe here: $chunkName")
                         subscribedTo.add(chunkName)
+                        bs.subscribe(chunkName,-1, this)
                     }
 
+
                     for (chunkName in toRemove) {
-                        logger.info("Reomve subscribe here: $chunkName")
+                        logger.info("Remove subscribe here: $chunkName")
                         subscribedTo.remove(chunkName)
+                        bs.unsubscribe(chunkName, this)
                     }
 
 
@@ -55,18 +65,26 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
         }
     }
 
-    override fun patchChange(
-        chunkName: ChunkName,
-        addTheseFaces: List<Long>,
-        textures: List<Int>,
-        removeFaces: List<Long>,
-        version: Int
-    ) {
-        TODO("Not yet implemented")
+    override fun patchChange(chunkName: ChunkName, addTheseFaces: List<Long>,
+        textures: List<Int>, removeFaces: List<Long>, version: Int) {
+
+        val tu = TerrainUpdates(chunkName.cx, chunkName.cz, addTheseFaces, textures, removeFaces )
+        val mfs = FromServer.terrainUpdate(tu)
+
+        println("Sending ${mfs.encodeToString()}")
+
+        GlobalScope.launch {
+            ws.send(mfs.encodeToString())
+        }
     }
-
-
 }
+val gson = Gson()
+
+private fun FromServer.encodeToString() :String {
+    return gson.toJson(this)
+   // return Json.encodeToString(this)
+}
+
 
 private fun ChunkName.distanceTo(nextChunk: ChunkName): Int {
     return(distanceSquared(this.cx, this.cz, nextChunk.cx, nextChunk.cz))

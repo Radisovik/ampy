@@ -8,6 +8,7 @@
            color: red;
            z-index: 2;
            position:relative;
+           -webkit-user-select: none;
        }
        #position {
            text-align: center;
@@ -15,12 +16,20 @@
            color: red;
            z-index: 2;
            position:relative;
+           -webkit-user-select: none;
        }
        #renderarea {
            position: fixed;
            top: 0;
            left: 0;
            z-index: 1;
+       }
+       #msg {
+           text-align: center;
+           top: 50%;
+           color: red;
+           z-index: 2;
+           position:relative;
        }
     </style>
 
@@ -37,6 +46,7 @@
 <div id="ping"></div>
 <div id="position"></div>
 <div id="renderarea"></div>
+<dev id="msg"></dev>
 <!--<script src="genjs/lib/kotlin.js"></script>-->
 <!--<script src="genjs/lib/kotlin-wrappers-kotlin-extensions-jsLegacy.js"></script>-->
 <!--<script src="genjs/lib/kotlinx-coroutines-core.js"></script>-->
@@ -45,5 +55,6 @@
 <!--<script src="genjs/lib/kotlinx-serialization-kotlinx-serialization-protobuf-js-legacy.js"></script>-->
 <!--<script src="genjs/amplus.js"></script>-->
 <script src="genjs/amplus_packed.js"></script>
+<!--<script src="amplus.js"></script>-->
 </body>
 </html>

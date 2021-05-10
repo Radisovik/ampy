@@ -23,6 +23,16 @@ kotlin {
         browser {
             commonWebpackConfig {
                 cssSupport.enabled = true
+                devServer =
+                    org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer(
+                        contentBase  = listOf("/Users/ehubbard/dev/ampy/www")
+
+                    )
+
+//                devServer?.proxy?.apply {
+//                    this.plus("/socket", )
+//                }
+
             }
             distribution {
                 directory = file("$projectDir/www/genjs")

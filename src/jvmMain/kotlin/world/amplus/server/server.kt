@@ -33,7 +33,7 @@ fun HTML.index() {
 }
 
 enum class RUN_MODE(val port:Int, val srf:String) {
-    DEV(8081,"."),PROD(8080,".")
+    DEV(9000,"."),PROD(9000,".")
 }
 
 val logger = Logger.getLogger("Server")

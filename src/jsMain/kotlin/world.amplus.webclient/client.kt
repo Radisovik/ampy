@@ -29,6 +29,7 @@ fun url() :String {
     var rtn = window.location.href.replace("https", "wss")
     rtn = rtn.replace("http","ws")
     rtn += "socket"
+    //rtn = "ws://localhost:9000/socket"
     println("I think the websocket will be at $rtn")
     return rtn
 }
@@ -72,6 +73,5 @@ fun firePing() {
 }
 
 fun msg(msg :String) {
-    val root = document.getElementById("ping")
-    root?.innerHTML = msg
+    println(msg)
 }

@@ -2,6 +2,7 @@ package world.amplus.webclient
 
 import ext.aspectRatio
 import ext.minus
+import ext.plus
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.serialization.encodeToHexString
@@ -15,6 +16,7 @@ import kotlin.js.Date
 import kotlin.js.Json
 
 class Game {
+    private var inited = false
     init {
         window.onresize = {
             camera.aspect = window.aspectRatio
@@ -45,9 +47,10 @@ class Game {
         setPixelRatio(window.devicePixelRatio)
 
     }
-    private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x00ffff) })
+    private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x0000ff) })
 
     private val scene = Scene().apply {
+        cube.position.set(2,1,2)
         add(cube)
 
         add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
@@ -56,10 +59,14 @@ class Game {
 
     var positionClock = 0.toDouble()
     fun animate() {
+        stats.begin()
+        if (!inited) {
+            setup()
+        }
         val now = Date.now()
         maybeSendPosition(now)
 
-        stats.begin()
+
         val delta = clock.getDelta().toDouble()
 
         cube.rotation.x -= delta
@@ -67,9 +74,36 @@ class Game {
 
         renderer.render(scene, camera)
 
+        controls?.update()
         stats.end()
-
         window.requestAnimationFrame { animate() }
+
+       // msg("Forward: ${controls?.forward}")
+    }
+
+    var controls : FirstPersonControls? = null
+
+    val PI = 3.1456
+
+    private fun setup() {
+        val pg = PlaneGeometry(200, 200, 32)
+
+        val groundTexture =TextureLoader().load("atlas.png")
+
+        groundTexture.repeat.set(1,1)
+        groundTexture.anisotropy = 16
+
+        val groundMaterial =  MeshStandardMaterial().apply { this.map = groundTexture}
+
+        val m = Mesh(pg, groundMaterial)
+      //  m.position.y = 0.0
+        m.rotation.x = - PI / 2
+        m.receiveShadow = true
+        scene.add(m)
+        camera.lookAt(3,2,3)
+        camera.position.set(1,2,1)
+        inited = true
+        controls = FirstPersonControls(renderer.domElement, camera)
     }
 
     private fun maybeSendPosition(now: Double) {

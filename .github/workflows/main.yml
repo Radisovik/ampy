@@ -32,9 +32,6 @@ jobs:
           arguments: distZip
       - uses: actions/upload-artifact@v2
         with:
-          name: dist artifacts
+          name: dist
           path: |
-            build/distributions
-            www
-            build/libs
-                     
+            build/distributions/amplus-1.0-SNAPSHOT.zip

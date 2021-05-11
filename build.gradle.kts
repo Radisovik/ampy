@@ -16,6 +16,23 @@ repositories {
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
 }
 
+distributions {
+    main {
+        contents {
+            into ("www") {
+                from("www")
+            }
+            into ("www/genjs") {
+                from("build/distributions/amplus_packed.js")
+                from("build/distributions/amplus_packed.js.map")
+            }
+            into("lib") {
+                from("build/libs")
+            }
+        }
+    }
+}
+
 kotlin {
 
     js(LEGACY) {
@@ -34,9 +51,6 @@ kotlin {
 //                    this.plus("/socket", )
 //                }
 
-            }
-            distribution {
-                directory = file("$projectDir/www/genjs")
             }
         }
     }

@@ -31,13 +31,13 @@ var connected = false;
 
 fun url() :String {
     println("Original href ${window.location.href}")
-    var rtn = window.location.href.replace("https", "wss")
-    rtn = rtn.replace("http","ws")
-    rtn += "socket"
-    rtn = "ws://localhost:9000/socket"
-    println("I think the websocket will be at $rtn")
-    return rtn
+    if (window.location.hostname.contains("amplus.world")) {
+        return "wss://amplus.world/socket"
+    } else {
+        return "ws://localhost:9000/socket"
+    }
 }
+
 fun setupSocket() {
 
     val url = url()

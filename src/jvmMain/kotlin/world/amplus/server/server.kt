@@ -38,26 +38,21 @@ enum class RUN_MODE(val port:Int, val srf:String) {
 
 val logger = Logger.getLogger("Server")
 
-fun pickPort(): RUN_MODE {
-    val osname = System.getProperty("os.name")
-
-    val rtn = if (osname.contains("windows", true) ||
-        osname.contains("Mac OS X", true)
-    ) {
-        RUN_MODE.DEV
-    } else {
-        RUN_MODE.PROD
+fun pickPort(args: Array<String>): RUN_MODE {
+    for (arg in args) {
+        if (arg == "devmode") {
+            return RUN_MODE.DEV
+        }
     }
-    logger.info("Running on $osname runmode: $rtn port:${rtn.port} root: ${rtn.srf}")
-    return rtn
+    return RUN_MODE.PROD
 }
 
-fun main() {
+fun main(args:Array<String>) {
     System.setProperty("java.util.logging.SimpleFormatter.format",
         "%1\$tF %1\$tT [%4\$s] [%3\$s] %5\$s%6\$s%n")
     val logger = Logger.getLogger("Server")
 
-    val runMode = pickPort()
+    val runMode = pickPort(args)
 
     val si = File(String.format("${runMode.srf}/www/index.html"))
     if (!si.exists()) {

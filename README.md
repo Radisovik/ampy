@@ -1,1 +1,1 @@
-![Current Build](https://github.com/Radisovik/ampy/actions/workflows/main.yaml/badge.svg)
+[![CI](https://github.com/Radisovik/ampy/actions/workflows/main.yml/badge.svg)](https://github.com/Radisovik/ampy/actions/workflows/main.yml)

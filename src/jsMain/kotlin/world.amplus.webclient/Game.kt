@@ -49,9 +49,11 @@ class Game {
     }
     private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x0000ff) })
 
-    private val scene = Scene().apply {
+    val scene = Scene().apply {
         cube.position.set(2,1,2)
-        add(cube)
+        attach(cube)
+        val g =GridHelper(32,32,  Color(0x0000ff), "bob")
+        attach(g)
 
         add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
         add(AmbientLight(0x404040, 1))
@@ -96,16 +98,17 @@ class Game {
         val groundMaterial =  MeshStandardMaterial().apply { this.map = groundTexture}
 
         val m = Mesh(pg, groundMaterial)
-      //  m.position.y = 0.0
+        m.position.y = -.8f
         m.rotation.x = - PI / 2
         m.receiveShadow = true
         scene.add(m)
         camera.lookAt(3,2,3)
-        camera.position.set(1,2,1)
+        camera.position.set(1,4,1)
         inited = true
         controls = FirstPersonControls(renderer.domElement, camera)
     }
 
+    var position = ""
     private fun maybeSendPosition(now: Double) {
         if (!connected) {
             return
@@ -125,7 +128,10 @@ class Game {
             val iy = camera.position.y.toInt()
             val iz = camera.position.z.toInt()
             val pmsg = "($ix,$iy,$iz)"
-            document.getElementById("position")?.innerHTML = pmsg
+            if (position!=pmsg) {
+                document.getElementById("position")?.innerHTML = pmsg
+                position = pmsg
+            }
             positionClock = now
         }
     }

@@ -25,7 +25,8 @@ kotlin {
                 cssSupport.enabled = true
                 devServer =
                     org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer(
-                        contentBase  = listOf("/Users/ehubbard/dev/ampy/www")
+                        //contentBase  = listOf("/Users/ehubbard/dev/ampy/www")
+                        contentBase  = listOf("${projectDir}/www")
 
                     )
 

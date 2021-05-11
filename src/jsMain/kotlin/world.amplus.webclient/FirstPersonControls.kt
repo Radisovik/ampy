@@ -102,7 +102,7 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
     var mdx=0
     var mdy=0
 
-    fun forward(distance:Int) {
+    fun forward(distance:Float) {
         // move forward parallel to the xz-plane
         // assumes camera.up is y-up
         _vector.setFromMatrixColumn( camera.matrix, 0 )
@@ -110,23 +110,23 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
         camera.position.addScaledVector( _vector, distance )
     }
 
-    fun right(distance:Int) {
+    fun right(distance:Float) {
         _vector.setFromMatrixColumn( camera.matrix, 0 )
         camera.position.addScaledVector( _vector, distance )
     }
 
     fun update() {
         if (forward) {
-            forward(1)
+            forward(.5f)
         }
         if (backward) {
-            forward(-1)
+            forward(-.5f)
         }
         if (left) {
-            right(-1)
+            right(-.5f)
         }
         if(right) {
-            right(1)
+            right(.5f)
         }
 
 

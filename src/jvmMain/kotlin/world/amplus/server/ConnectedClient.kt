@@ -19,7 +19,7 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
     val subscribedTo = HashSet<ChunkName>()
     val bs = BlockStores.blockStore(currentWorld)
     init {
-        bs.put(V3i(2,2,2), BlockType.DIRT)
+
     }
     suspend fun process(fc: FromClient) {
         when (fc.type) {
@@ -33,7 +33,7 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
                 val nextChunk = ChunkName(currentWorld, iat.v3i.x, iat.v3i.z)
                 if (nextChunk != currentChunk) {
 
-                    val newChunks = nextChunk.myNeightbors(2)
+                    val newChunks = nextChunk.myNeightbors(5)
 
                     val toAdd = newChunks.stream()
                         .filter { !subscribedTo.contains(it) }
@@ -68,21 +68,23 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
     override fun patchChange(chunkName: ChunkName, addTheseFaces: List<Long>,
         textures: List<Int>, removeFaces: List<Long>, version: Int) {
 
-        val tu = TerrainUpdates(chunkName.cx, chunkName.cz, addTheseFaces, textures, removeFaces )
+        val csn = ChunkShortName(chunkName.cx, chunkName.cz)
+        val tu = TerrainUpdates(csn, addTheseFaces, textures, removeFaces )
         val mfs = FromServer.terrainUpdate(tu)
 
-        println("Sending ${mfs.encodeToString()}")
+        println("Sending terrain patch this big: ${mfs.encodeToString().length}")
 
         GlobalScope.launch {
             ws.send(mfs.encodeToString())
         }
     }
 }
+
 val gson = Gson()
 
 private fun FromServer.encodeToString() :String {
+   // return ProtoBuf.encodeToHexString(this)
     return gson.toJson(this)
-   // return Json.encodeToString(this)
 }
 
 

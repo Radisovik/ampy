@@ -14,7 +14,7 @@ fun main() {
         val imageDir = File("textures/images")
 
         val listFiles = imageDir.listFiles { _, name ->
-            (name.toLowerCase().endsWith(".png"))
+            (name.toLowerCase().endsWith(".png")||(name.toLowerCase().endsWith(".jpg")))
         }
         val size = 256
         val width = size * 4
@@ -25,12 +25,13 @@ fun main() {
         val atlas = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 
         for ((ic, imgFile) in listFiles.withIndex()) {
+            println("Processing: ${imgFile.name}")
             val bi = ImageIO.read(imgFile)
             val x = (ic % 4)
             val y = (ic / 4)
             atlas.graphics.drawImage(bi, x * size, y * size, null)
-            val name = imgFile.name.substringBefore(".png")
-                .replace("-", "_")
+
+            val name =imgFile.name.substringBeforeLast(".") .replace("-", "_")
 
             val ax: Float = x * fwidth
             val ay: Float = 1 - (y * fheight)

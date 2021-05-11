@@ -22,7 +22,12 @@ enum class BlockType(
     RED_BRICK(Textures.redbrick),
     SNOW(Textures.snow, Textures.dirt, Textures.dirt_side_snow),
     PEBBLES(Textures.pebbles),
-    ICE(Textures.ice);
+    ICE(Textures.ice),
+    EXPLOSIVES(Textures.tntunlit, Textures.boxcrate, Textures.boxcrate),
+    EXPLOSIVES_LIT(Textures.littnt, Textures.boxcrate, Textures.boxcrate),
+    BED(Textures.bedtop, Textures.bedside,Textures.bedside),
+    MOSS_ROCK(Textures.moss, Textures.rock, Textures.rocksidewithmoss),
+    ROCK(Textures.rock);
 
     companion object {
         val btById = mutableMapOf<Int, BlockType>()

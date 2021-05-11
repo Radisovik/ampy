@@ -3,6 +3,9 @@ package world.amplus.common
 import kotlinx.serialization.*
 
 @Serializable
+data class ChunkShortName(val cx: Int, val cz: Int)
+
+@Serializable
 enum class SType {
     PONG, TIME, LOGIN_RESPONSE, TERRAIN_UPDATE
 }
@@ -67,9 +70,9 @@ enum class Side(val mask: Byte, val delta: V3i, private val otherSideOrd: Int) {
             values().forEach { byValue[it.mask] = it }
         }
 
-        fun value(byte: Byte): Side {
-            return byValue[byte]!!
-        }
+//        fun value(byte: Byte): Side {
+//            return byValue[byte]!!
+//        }
     }
 
     fun other() = values()[otherSideOrd]
@@ -83,7 +86,7 @@ enum class Side(val mask: Byte, val delta: V3i, private val otherSideOrd: Int) {
 //version: Int
 
 @Serializable
-data class TerrainUpdates(val cx:Int, val cy:Int, val addTheseFaces:List<Long>, val textures:List<Int>, val removeTheseFaces:List<Long>)
+data class TerrainUpdates(val chunkName: ChunkShortName, val addTheseFaces:List<Long>, val textures:List<Int>, val removeTheseFaces:List<Long>)
 
 @Serializable
 data class IAmAt(val v3i: V3f)

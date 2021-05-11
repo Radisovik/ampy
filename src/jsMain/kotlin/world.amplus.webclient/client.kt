@@ -10,17 +10,17 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.WebSocket
-import world.amplus.common.FromClient
-import world.amplus.common.FromServer
-import world.amplus.common.SType
-import world.amplus.common.TerrainUpdates
+import world.amplus.common.*
 import kotlin.experimental.and
 import kotlin.js.Date
 
 
+val game :Game by lazy {
+    Game()
+}
 
 fun main() {
-    Game().animate()
+    game.animate()
     window.onload = fun(evt) {
         setupSocket()
     }
@@ -65,7 +65,10 @@ fun setupSocket() {
             }
             SType.TIME -> TODO()
             SType.TERRAIN_UPDATE -> {
+                val now = Date.now()
                 processTerrain(fs.terrainUpdate!!)
+                val delta = Date.now() -now
+                println("Time to process ${fs.terrainUpdate!!.chunkName} --> ${delta}ms")
             }
         }
     }
@@ -112,18 +115,13 @@ fun ek(x: Short, y: Short, z: Short, side: Short): Long {
 }
 
 val CHUNK_SIZE=16
-fun processTerrain(tu: TerrainUpdates) {
-    println("Exciting we got a terrain update! ${tu}")
-    for (face in tu.addTheseFaces) {
-        val es =ExposedSide(face,0)
-        val l =ek(es.x(), es.y(),es.z(), es.side())
 
-        if (l!=face) {
-            println("buggg")
-        } else {
-            println("all good")
-        }
-    }
+var chunks = mutableMapOf<ChunkShortName, ChunkData>()
+
+fun processTerrain(tu: TerrainUpdates) {
+   // println("Exciting we got a terrain update! ${tu}")
+    val key = tu.chunkName
+    chunks.getOrPut(key) { ChunkData(key,) }.process(tu)
 
 
 }

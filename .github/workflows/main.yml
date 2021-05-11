@@ -36,4 +36,5 @@ jobs:
           path: |
             build/distributions
             www
+            build/libs
                      

@@ -27,7 +27,7 @@ data class FromServer(val type : SType) {
     companion object {
         fun pong(id: Double) = FromServer(SType.PONG).apply { pong = Pong(id) }
         fun terrainUpdate(tu:TerrainUpdates) = FromServer(SType.TERRAIN_UPDATE).apply { terrainUpdate = tu}
-        fun playerMoved(name:String, pos:V3f, asOf:Long) = FromServer(SType.PLAYER_MOVED).apply { PlayerMoved(name, pos, asOf) }
+        fun playerMoved(name:String, pos:V3f, asOf:Long) = FromServer(SType.PLAYER_MOVED).apply { playerMoved = PlayerMoved(name, pos, asOf) }
     }
 }
 

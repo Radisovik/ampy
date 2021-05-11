@@ -24,6 +24,7 @@ fun main() {
     window.onload = fun(evt) {
         setupSocket()
     }
+
 }
 var ws :WebSocket? = null
 var connected = false;
@@ -71,6 +72,15 @@ fun setupSocket() {
                 processTerrain(fs.terrainUpdate!!)
                 val delta = Date.now() -now
                 println("Time to process ${fs.terrainUpdate!!.chunkName} --> ${delta}ms")
+            }
+
+            SType.PLAYER_MOVED -> {
+                val pm = fs.playerMoved
+                if (pm == null) {
+                    game.chat("Got a bad player moved!!")
+                } else {
+                    game.playerMoved(pm)
+                }
             }
         }
     }

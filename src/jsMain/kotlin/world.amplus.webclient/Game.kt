@@ -2,19 +2,16 @@ package world.amplus.webclient
 
 import ext.aspectRatio
 import ext.minus
-import ext.plus
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.serialization.encodeToHexString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.protobuf.ProtoBuf
-import org.w3c.dom.Element
 import stats.js.Stats
 import three.js.*
 import world.amplus.common.FromClient
+import world.amplus.common.PlayerMoved
 import world.amplus.common.V3f
 import kotlin.js.Date
-import kotlin.js.Json
 
 class Game {
     private var inited = false
@@ -24,6 +21,7 @@ class Game {
             camera.updateProjectionMatrix()
             renderer.setSize(window.innerWidth, window.innerHeight)
         }
+
     }
     private val clock = Clock()
     val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 1000).apply {
@@ -66,6 +64,7 @@ class Game {
         add(AmbientLight(0x404040, 1))
 
         attach(terrainGroup)
+        attach(OtherPlayer.playerGroup)
     }
 
     var positionClock = 0.toDouble()
@@ -84,6 +83,7 @@ class Game {
         }
         val now = Date.now()
         maybeSendPosition(now)
+        OtherPlayer.update(now)
 
 
         val delta = clock.getDelta().toDouble()
@@ -170,6 +170,11 @@ class Game {
             }
             positionClock = now
         }
+    }
+
+    fun playerMoved(pm: PlayerMoved) {
+        OtherPlayer.moved(pm)
+
     }
 }
 

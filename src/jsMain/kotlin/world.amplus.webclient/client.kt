@@ -50,7 +50,7 @@ fun setupSocket() {
         connected=false
     }
     lws.onopen = fun (evt) {
-        msg("web socket opened!! $evt")
+        game.chat("Connected")
         window.setInterval({ firePing() }, 1000)
         connected=true
     }

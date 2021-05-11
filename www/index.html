@@ -31,6 +31,15 @@
            z-index: 2;
            position:relative;
        }
+       .chat {
+           position: fixed;
+           color: yellow;
+           z-index: 2;
+           left: 0;
+           background-blend-mode: overlay;
+           top: 100%;
+           transform: translateY(-100%);
+       }
     </style>
 
     <meta charset="UTF-8">
@@ -46,7 +55,11 @@
 <div id="ping"></div>
 <div id="position"></div>
 <div id="renderarea"></div>
-<dev id="msg"></dev>
+<div id="msg"></div>
+
+
+<div id="chatarea" class="chat"></div>
+
 <!--<script src="genjs/lib/kotlin.js"></script>-->
 <!--<script src="genjs/lib/kotlin-wrappers-kotlin-extensions-jsLegacy.js"></script>-->
 <!--<script src="genjs/lib/kotlinx-coroutines-core.js"></script>-->

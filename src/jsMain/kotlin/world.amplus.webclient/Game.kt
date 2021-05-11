@@ -8,6 +8,7 @@ import kotlinx.browser.window
 import kotlinx.serialization.encodeToHexString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.protobuf.ProtoBuf
+import org.w3c.dom.Element
 import stats.js.Stats
 import three.js.*
 import world.amplus.common.FromClient
@@ -55,6 +56,10 @@ class Game {
         val g =GridHelper(32,32,  Color(0x0000ff), "bob")
         attach(g)
 
+        val ah = AxesHelper(5)
+        ah.position.set(1,1,1)
+        attach(ah)
+
         add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
         add(AmbientLight(0x404040, 1))
     }
@@ -86,6 +91,24 @@ class Game {
     var controls : FirstPersonControls? = null
 
     val PI = 3.1456
+
+   val chatMessages = Array<String>(5){""}
+
+    fun chat(msg:String) {
+        val chatArea = window.document.getElementById("chatarea")!!
+        for (i in 3 downTo 0) {
+            println("chat downto $i")
+            chatMessages[i+1] = chatMessages[i]
+        }
+        chatMessages[0]= msg
+        var chatText =""
+
+        for (i in 4 downTo 0) {
+            chatText += chatMessages[i]
+            chatText += "<br>"
+        }
+        chatArea.innerHTML = chatText
+    }
 
     private fun setup() {
         val pg = PlaneGeometry(200, 200, 32)

@@ -78,14 +78,13 @@ fun main() {
                             val text = frame.readText()
                             val fc = ProtoBuf.decodeFromHexString<FromClient>(text)
                             cc.process(fc)
-
-
                         }
                         else -> {
                             logger.warning("Unknown frame type: $frame")
                         }
                     }
                 }
+                cc.die()
             }
             static("/") {
                 staticRootFolder = File(runMode.srf)

@@ -12,15 +12,34 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import world.amplus.common.*
 import java.util.stream.Collectors
 import com.google.gson.*
+import kotlinx.serialization.encodeToByteArray
+import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Logger
+
+
+var gid=0
+
+val connectedClients = ConcurrentHashMap<String, ConnectedClient>()
 
 class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener {
     var currentWorld : String = "root"
     var currentChunk = ChunkName()
     val subscribedTo = HashSet<ChunkName>()
     val bs = BlockStores.blockStore(currentWorld)
+    val playerName = "Unknown-${gid++}"
+    val logger = Logger.getLogger(playerName)
     init {
+        connectedClients.put(playerName, this)
+    }
+    suspend fun die() {
+        logger.info("Cleaning up $playerName")
+        connectedClients.remove(this.playerName)
+        subscribedTo.forEach {
+            bs.unsubscribe(it, this)
+        }
 
     }
+
     suspend fun process(fc: FromClient) {
         when (fc.type) {
             CType.PING -> {
@@ -30,6 +49,14 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
             CType.LOGIN_REQUEST -> TODO()
             CType.IAMAT -> {
                 val iat = fc.iamiat!!
+                val pm = FromServer.playerMoved(playerName, iat.v3i, System.currentTimeMillis())
+                val msg = pm.encodeToString()
+                for (it in connectedClients.entries) {
+                    if (it.key != playerName) {
+                        it.value.ws.send(msg)
+                    }
+                }
+
                 val nextChunk = ChunkName(currentWorld, iat.v3i.x, iat.v3i.z)
                 if (nextChunk != currentChunk) {
 
@@ -62,6 +89,16 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
                     currentChunk = nextChunk
                 }
             }
+            CType.TOOLUSE -> {
+                val tu = fc.toolUse!!
+                if (tu.tool == 192) {
+                    bs.remove(tu.start, tu.end)
+                } else {
+                    val bt =BlockType.values()[tu.tool-48]
+                    logger.info("Asked to use tool ${tu.tool} which would be ${tu.tool-48} and that is a $bt")
+                    bs.put(tu.start, tu.end, bt)
+                }
+            }
         }
     }
 
@@ -72,7 +109,7 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
         val tu = TerrainUpdates(csn, addTheseFaces, textures, removeFaces )
         val mfs = FromServer.terrainUpdate(tu)
 
-        println("Sending terrain patch this big: ${mfs.encodeToString().length}")
+        logger.info("TPSize: ${mfs.encodeToString().length} pbhex ${ProtoBuf.encodeToHexString(mfs).length} ${ProtoBuf.encodeToByteArray(mfs).size}")
 
         GlobalScope.launch {
             ws.send(mfs.encodeToString())
@@ -83,8 +120,12 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
 val gson = Gson()
 
 private fun FromServer.encodeToString() :String {
-   // return ProtoBuf.encodeToHexString(this)
-    return gson.toJson(this)
+    val pbHex = ProtoBuf.encodeToHexString(this)
+    val json = gson.toJson(this)
+    val pb = ProtoBuf.encodeToByteArray(this)
+    // return ProtoBuf.encodeToHexString(this)
+   // println("Json size: ${json.length} vs. PB hex size: ${pbHex.length} vs. PB ${pb.size}")
+    return json
 }
 
 

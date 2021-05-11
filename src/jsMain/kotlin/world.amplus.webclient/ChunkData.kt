@@ -17,7 +17,7 @@ class ChunkData(val shortName :ChunkShortName) {
     companion object {
         val atlasTexture = TextureLoader().load("atlas.png")
         val groundMaterial =  MeshStandardMaterial().apply {
-            this.map = atlasTexture
+            map = atlasTexture
 //            this.wireframe = true
 //            this.wireframeLinewidth = .25f
         }
@@ -35,12 +35,16 @@ class ChunkData(val shortName :ChunkShortName) {
             exposedFaces.remove(it)
         }
         if (currentMesh!=null) {
-            game.scene.remove(currentMesh!!)
+            game.terrainGroup.remove(currentMesh!!)
         }
         if (exposedFaces.isNotEmpty()) {
             println("Got some faces to draw: ${exposedFaces.size} ${shortName}")
             currentMesh = createMesh()
-            game.scene.attach(currentMesh!!)
+            game.terrainGroup.attach(currentMesh!!)
+        }
+        val delta = Timers.finish("TU")
+        if (delta !=Double.MIN_VALUE) {
+            game.chat("Estimated: ${delta}ms for round trip terrain change")
         }
 
     }
@@ -404,7 +408,7 @@ class ChunkData(val shortName :ChunkShortName) {
                 }
             }
         }
-        log("End value of PI $pi and ni $ni and ti $ti")
+        //game.chat("End value of PI $pi and ni $ni and ti $ti ->  ${positions.length} ${normals.length} ${uv.size}")
         bg.setAttribute("position", BufferAttribute(positions.asDynamic(),3))
         bg.setAttribute("normal", BufferAttribute(normals.asDynamic(), 3))
         bg.setAttribute("uv", BufferAttribute(uv.asDynamic(), 2))

@@ -62,16 +62,23 @@ class ClassicBlockStore(val world: String) : BlockStore {
     val listeners = HashMap<ChunkName, HashSet<BlockStoreListener>>()
 
     @Synchronized
-    override fun subscribe(cn: ChunkName, version:Int, listener: BlockStoreListener) {
+    override fun subscribe(cn: ChunkName, version:Int, listener: BlockStoreListener) : Boolean{
         val start = System.currentTimeMillis()
         val chunk = chunk(cn)
-        if (chunk.version != version) { // if they didn't have the latest
-            val (longs, ints) = visit(cn)
-            listener.patchChange(cn, longs.asList(), ints.asList(), EMPTY_LONG_ARRAY.asList(), chunk.version)
-        }
+
         listeners.getOrPut(cn) { HashSet() }.add(listener)
         val delta = System.currentTimeMillis() - start
-        logger.info("Subscription to $cn took ${delta}ms")
+       // logger.info("Subscription to $cn took ${delta}ms")
+
+        return if (chunk.version != version) { // if they didn't have the latest
+            val (longs, ints) = visit(cn)
+            listener.patchChange(cn, longs.asList(), ints.asList(), EMPTY_LONG_ARRAY.asList(), chunk.version)
+            true
+        } else {
+         //   logger.info("Avoided notification on subscribe client already has $cn.${chunk.version}")
+            false
+        }
+
     }
 
 

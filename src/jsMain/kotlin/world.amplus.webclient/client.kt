@@ -42,10 +42,12 @@ fun setupSocket() {
     val url = url()
     val lws = WebSocket(url)
     lws.onclose = fun (evt) {
+        game.chat("Disconnected: closed")
         msg("Web socket closed $evt")
         connected=false
     }
     lws.onerror = fun (evt) {
+        game.chat("Disconnected: Error")
         msg("web socket error $evt")
         connected=false
     }

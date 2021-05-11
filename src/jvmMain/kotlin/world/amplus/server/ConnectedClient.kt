@@ -28,6 +28,7 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
     val bs = BlockStores.blockStore(currentWorld)
     val playerName = "Unknown-${gid++}"
     val logger = Logger.getLogger(playerName)
+    val latestKnown = ConcurrentHashMap<ChunkName, Int>()
     init {
         connectedClients.put(playerName, this)
     }
@@ -72,18 +73,20 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
                         .collect(Collectors.toSet())
 
 
+                    var avoided = 0
                     for (chunkName in toAdd) {
-                        logger.info("Add subscribe here: $chunkName")
                         subscribedTo.add(chunkName)
-                        bs.subscribe(chunkName,-1, this)
+                        val lk = latestKnown.getOrPut(chunkName){ -1}
+                        if (!bs.subscribe(chunkName,lk, this)) {
+                            avoided ++
+                        }
                     }
 
-
                     for (chunkName in toRemove) {
-                        logger.info("Remove subscribe here: $chunkName")
                         subscribedTo.remove(chunkName)
                         bs.unsubscribe(chunkName, this)
                     }
+                    logger.info("Subscribed [${toAdd.size}/$avoided].  Unsubscribed [${toRemove.size}]")
 
 
                     currentChunk = nextChunk
@@ -102,15 +105,34 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
         }
     }
 
+    @Synchronized
+    fun newer(chunkName: ChunkName, tv : Int) :Boolean {
+        val lk = latestKnown.getOrPut(chunkName) { -1}
+        if (lk !=tv ) {
+            latestKnown[chunkName] = tv
+            return true
+        } else {
+            return false
+        }
+    }
+
     override fun patchChange(chunkName: ChunkName, addTheseFaces: List<Long>,
         textures: List<Int>, removeFaces: List<Long>, version: Int) {
-
         val csn = ChunkShortName(chunkName.cx, chunkName.cz)
-        val tu = TerrainUpdates(csn, addTheseFaces, textures, removeFaces )
+        val tu = TerrainUpdates(csn, addTheseFaces, textures, removeFaces)
         val mfs = FromServer.terrainUpdate(tu)
-
-        logger.info("TPSize: ${mfs.encodeToString().length} pbhex ${ProtoBuf.encodeToHexString(mfs).length} ${ProtoBuf.encodeToByteArray(mfs).size}")
-
+        // uncomment to get info on terrain patch sizes for the various formats
+        // typical full flat chunk is 9426,10930,5465...
+        // so a pb hex string is BIGGER then the JSON.. but a pb byte array would be 50 better
+        // someday we'll get there..  but I have problems understanding websocket byte arrays
+//        logger.info(
+//            "TPSize: ${mfs.encodeToString().length} pbhex ${ProtoBuf.encodeToHexString(mfs).length} ${
+//                ProtoBuf.encodeToByteArray(
+//                    mfs
+//                ).size
+//            }"
+//        )
+        latestKnown.put(chunkName, version)
         GlobalScope.launch {
             ws.send(mfs.encodeToString())
         }

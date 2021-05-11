@@ -26,7 +26,7 @@ class Game {
         }
     }
     private val clock = Clock()
-    private val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 1000).apply {
+    val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 1000).apply {
         position.z = 5
     }
     private val stats = Stats().apply {
@@ -41,7 +41,7 @@ class Game {
     }
 
 
-    private val renderer = WebGLRenderer().apply {
+    val renderer = WebGLRenderer().apply {
         val renderarea = window.document.getElementById("renderarea")
         renderarea?.appendChild(domElement)
         setSize(window.innerWidth, window.innerHeight)
@@ -49,6 +49,8 @@ class Game {
 
     }
     private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x0000ff) })
+
+    val terrainGroup = Group()
 
     val scene = Scene().apply {
         cube.position.set(2,1,2)
@@ -62,10 +64,20 @@ class Game {
 
         add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
         add(AmbientLight(0x404040, 1))
+
+        attach(terrainGroup)
     }
 
     var positionClock = 0.toDouble()
+    var atLeastOnce = false
     fun animate() {
+        if (connected) {
+            atLeastOnce = true
+        }else if(!connected && atLeastOnce){
+            chat("We lost connection to the server -- please click refresh")
+            return
+        }
+
         stats.begin()
         if (!inited) {
             setup()
@@ -92,18 +104,19 @@ class Game {
 
     val PI = 3.1456
 
-   val chatMessages = Array<String>(5){""}
+    val  MAX_CHAT_MESSAGES =5
+
+   val chatMessages = Array<String>(MAX_CHAT_MESSAGES){""}
 
     fun chat(msg:String) {
         val chatArea = window.document.getElementById("chatarea")!!
-        for (i in 3 downTo 0) {
-            println("chat downto $i")
+        for (i in MAX_CHAT_MESSAGES-2 downTo 0) {
             chatMessages[i+1] = chatMessages[i]
         }
         chatMessages[0]= msg
         var chatText =""
 
-        for (i in 4 downTo 0) {
+        for (i in MAX_CHAT_MESSAGES-1 downTo 0) {
             chatText += chatMessages[i]
             chatText += "<br>"
         }

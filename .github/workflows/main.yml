@@ -30,3 +30,10 @@ jobs:
       - uses: eskatos/gradle-command-action@v1
         with:
           arguments: distZip
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist artifacts
+          path: |
+            build/distributions
+            www
+                     

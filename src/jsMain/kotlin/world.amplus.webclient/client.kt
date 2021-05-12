@@ -29,6 +29,14 @@ fun main() {
 var ws :WebSocket? = null
 var connected = false;
 
+fun onSignIn(googleUser:dynamic) {
+    println("Google user: ${JSON.stringify(googleUser)}")
+}
+
+fun googleProfile() : String {
+    return js("profile_name")
+}
+
 fun url() :String {
     println("Original href ${window.location.href}")
     if (window.location.hostname.contains("amplus.world")) {
@@ -54,6 +62,7 @@ fun setupSocket() {
     }
     lws.onopen = fun (evt) {
         game.chat("Connected")
+//        game.chat("Profile name: $googleProfile)
         window.setInterval({ firePing() }, 1000)
         connected=true
     }

@@ -74,12 +74,23 @@
 <div id="renderarea"></div>
 <div id="msg"></div>
 <script>
+    var id_token
+    var profile_name
+    var email
+    var basicProfile
+    var profile_id
+    var googleUser2
     function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
+        amplus.world.amplus.webclient.onSignIn(googleUser)
+        googleUser2 = googleUser
+        basicProfile = googleUser.getBasicProfile()
+        id_token = googleUser.getAuthResponse().id_token;
+        profile_name = profile.getName()
+        email = profile.getEmail()
+        console.log('ID: ' + profile_id); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile_name);
         console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+        console.log('Email: ' + email); // This is null if the 'email' scope is not present.
     }
     function signOut() {
         var auth2 = gapi.auth2.getAuthInstance();

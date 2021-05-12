@@ -84,11 +84,11 @@
         googleUser2 = googleUser
         basicProfile = googleUser.getBasicProfile()
         id_token = googleUser.getAuthResponse().id_token;
-        profile_name = profile.getName()
-        email = profile.getEmail()
+        profile_name = basicProfile.getName()
+        email = basicProfile.getEmail()
         console.log('ID: ' + profile_id); // Do not send to your backend! Use an ID token instead.
         console.log('Name: ' + profile_name);
-        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Image URL: ' + basicProfile.getImageUrl());
         console.log('Email: ' + email); // This is null if the 'email' scope is not present.
         konSignIn(googleUser)
     }

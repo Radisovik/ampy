@@ -3,6 +3,7 @@
 ./gradlew jsBrowserDistribution
 ./gradlew distZip
 
+
 cp -r www/* home:"$1"/www
 
 scp  snapshotjar home:/tmp

@@ -21,12 +21,12 @@ var gid=0
 
 val connectedClients = ConcurrentHashMap<String, ConnectedClient>()
 
-class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener {
+class ConnectedClient(val ws: DefaultWebSocketServerSession, val playerName: String) :BlockStoreListener {
     var currentWorld : String = "root"
     var currentChunk = ChunkName()
     val subscribedTo = HashSet<ChunkName>()
     val bs = BlockStores.blockStore(currentWorld)
-    val playerName = "Unknown-${gid++}"
+
     val logger = Logger.getLogger(playerName)
     val latestKnown = ConcurrentHashMap<ChunkName, Int>()
     init {
@@ -38,9 +38,7 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession) :BlockStoreListener
         subscribedTo.forEach {
             bs.unsubscribe(it, this)
         }
-
     }
-
     suspend fun process(fc: FromClient) {
         when (fc.type) {
             CType.PING -> {

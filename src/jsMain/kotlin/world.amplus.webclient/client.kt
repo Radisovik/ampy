@@ -62,8 +62,17 @@ fun setupSocket() {
     }
     lws.onopen = fun (evt) {
         game.chat("Connected")
-        game.chat("Profile name: ${googleProfile()}")
-        lws.send(googleId_Token())
+        val profileName = googleProfile()
+        if (profileName ==null || profileName.isEmpty()) {
+            game.chat("Anonymouse user")
+            lws.send("anonymous")
+        } else  {
+            game.chat("Trying to login as: $profileName")
+            lws.send(googleId_Token())
+        }
+
+
+
         window.setInterval({ firePing() }, 1000)
         connected=true
     }

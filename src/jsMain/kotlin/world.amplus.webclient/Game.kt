@@ -53,8 +53,6 @@ class Game {
     val scene = Scene().apply {
         cube.position.set(2,1,2)
         attach(cube)
-        val g =GridHelper(32,32,  Color(0x0000ff), "bob")
-        attach(g)
 
         val ah = AxesHelper(5)
         ah.position.set(1,1,1)

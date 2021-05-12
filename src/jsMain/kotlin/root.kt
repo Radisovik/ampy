@@ -1,3 +1,3 @@
-fun konSignIn(googleUser:dynamic) {
-    println("Google user: ${JSON.stringify(googleUser)}")
+fun test() {
+    println("did I find it")
 }

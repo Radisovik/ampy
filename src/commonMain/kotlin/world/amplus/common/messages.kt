@@ -24,10 +24,12 @@ data class FromServer(val type : SType) {
     var pong: Pong? = null
     var terrainUpdate: TerrainUpdates? = null
     var playerMoved: PlayerMoved?=null
+    var loginResponse: LoginResponse?=null
     companion object {
         fun pong(id: Double) = FromServer(SType.PONG).apply { pong = Pong(id) }
         fun terrainUpdate(tu:TerrainUpdates) = FromServer(SType.TERRAIN_UPDATE).apply { terrainUpdate = tu}
         fun playerMoved(name:String, pos:V3f, asOf:Long) = FromServer(SType.PLAYER_MOVED).apply { playerMoved = PlayerMoved(name, pos, asOf) }
+        fun loginResponse(time :Double, name:String, pos:V3f) = FromServer(SType.LOGIN_RESPONSE).apply { loginResponse = LoginResponse(time, name, pos)}
     }
 }
 

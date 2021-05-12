@@ -47,6 +47,12 @@
            top: 100%;
            transform: translateY(-100%);
        }
+       #my-signin2 {
+           top: 0;
+           right:0;
+           z-index: 2;
+           position:fixed;
+       }
        .g-signin2 {
            top: 0;
            right:0;
@@ -68,29 +74,35 @@
 
 <div id="root">
 </div>
-<div class="g-signin2" data-onsuccess="onSignIn"></div>
+<!--<div class="g-signin2" data-onsuccess="onSignIn"></div>-->
 <div id="ping"></div>
 <div id="position"></div>
 <div id="renderarea"></div>
 <div id="msg"></div>
+
+<div id="my-signin2"></div>
 <script>
-    var id_token
-    var profile_name
-    var email
-    var basicProfile
-    var profile_id
-    var googleUser2
-    function onSignIn(googleUser) {
-        googleUser2 = googleUser
-        basicProfile = googleUser.getBasicProfile()
-        id_token = googleUser.getAuthResponse().id_token;
-        profile_name = basicProfile.getName()
-        email = basicProfile.getEmail()
-        console.log('ID: ' + profile_id); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile_name);
-        console.log('Image URL: ' + basicProfile.getImageUrl());
-        console.log('Email: ' + email); // This is null if the 'email' scope is not present.
-       // konSignIn(googleUser)
+    var google_name
+    function onSuccess(googleUser) {
+        console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+        google_name = googleUser.getBasicProfile().getName()
+        let google_id_token = googleUser.getAuthResponse().id_token;
+        setupSocket( google_id_token)
+    }
+    function onFailure(error) {
+        setupSocket("")
+        console.log(error);
+    }
+    function renderButton() {
+        gapi.signin2.render('my-signin2', {
+            'scope': 'profile email',
+            'width': 120,
+            'height': 25,
+            'longtitle': false,
+            'theme': 'dark',
+            'onsuccess': onSuccess,
+            'onfailure': onFailure
+        });
     }
     function signOut() {
         var auth2 = gapi.auth2.getAuthInstance();
@@ -101,7 +113,9 @@
 </script>
 <a href="#" onclick="signOut();">Sign out</a>
 <div id="chatarea" class="chat"></div>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
+<!--<script src="https://apis.google.com/js/platform.js"></script>-->
+<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+
 <meta name="google-signin-client_id" content="402173895467-6qa2efadumtv82ks1e9cfmglhq07n0j3.apps.googleusercontent.com">
 <script src="genjs/amplus_packed.js"></script>
 <script src="amplus.js"></script>

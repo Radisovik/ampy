@@ -13,7 +13,10 @@ import world.amplus.common.*
 import java.util.stream.Collectors
 import com.google.gson.*
 import kotlinx.serialization.encodeToByteArray
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.PriorityBlockingQueue
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
 
@@ -21,17 +24,37 @@ var gid=0
 
 val connectedClients = ConcurrentHashMap<String, ConnectedClient>()
 
-class ConnectedClient(val ws: DefaultWebSocketServerSession, val playerName: String) :BlockStoreListener {
+class ConnectedClient(private val wss: DefaultWebSocketServerSession, val playerName: String) :BlockStoreListener {
     var currentWorld : String = "root"
     var currentChunk = ChunkName()
     val subscribedTo = HashSet<ChunkName>()
     val bs = BlockStores.blockStore(currentWorld)
+    val sendQueue = ArrayBlockingQueue<String>(512)
 
     val logger = Logger.getLogger(playerName)
     val latestKnown = ConcurrentHashMap<ChunkName, Int>()
     init {
+        val lr = FromServer.loginResponse(System.currentTimeMillis().toDouble(), playerName, V3f(2f,2f,2f))
+        val msg = lr.encodeToString()
+        send(msg)
         connectedClients.put(playerName, this)
+        GlobalScope.launch {
+            while(true) {
+                val msg = sendQueue.take()
+                if (msg == "die") {
+                    break
+                }
+                wss.send(msg)
+            }
+        }
     }
+
+    fun send(fromServer: String) {
+        if (!sendQueue.offer(fromServer, 5, TimeUnit.SECONDS)) {
+            logger.severe("SendQueue blocked for 5 seconds. Dropped message")
+        }
+    }
+
     suspend fun die() {
         logger.info("Cleaning up $playerName")
         connectedClients.remove(this.playerName)
@@ -43,16 +66,15 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession, val playerName: Str
         when (fc.type) {
             CType.PING -> {
                 val pong = FromServer.pong(fc.ping!!.time)
-                ws.send(pong.encodeToString())
+                send(pong.encodeToString())
             }
-            CType.LOGIN_REQUEST -> TODO()
             CType.IAMAT -> {
                 val iat = fc.iamiat!!
                 val pm = FromServer.playerMoved(playerName, iat.v3i, System.currentTimeMillis())
                 val msg = pm.encodeToString()
                 for (it in connectedClients.entries) {
                     if (it.key != playerName) {
-                        it.value.ws.send(msg)
+                        it.value.send(msg)
                     }
                 }
 
@@ -131,9 +153,8 @@ class ConnectedClient(val ws: DefaultWebSocketServerSession, val playerName: Str
 //            }"
 //        )
         latestKnown.put(chunkName, version)
-        GlobalScope.launch {
-            ws.send(mfs.encodeToString())
-        }
+
+         send(mfs.encodeToString())
     }
 }
 

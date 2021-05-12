@@ -21,20 +21,21 @@ val game :Game by lazy {
 
 fun main() {
     game.animate()
-    window.onload = fun(evt) {
-        setupSocket()
-    }
-
+    window.asDynamic()["setupSocket"] = ::setupSocket
+//    window.onload = fun(evt) {
+//        setupSocket()
+//    }
 }
+
 var ws :WebSocket? = null
 var connected = false;
 
-fun googleId_Token() : String {
-    return js("id_token")
+fun google_id_token() : String {
+    return js("google_id_token")
 }
 
-fun googleProfile() : String {
-    return js("profile_name")
+fun google_name() : String {
+    return js("google_name")
 }
 
 fun url() :String {
@@ -46,12 +47,12 @@ fun url() :String {
     }
 }
 
-fun setupSocket() {
+fun setupSocket(google_id_token:String) {
 
     val url = url()
     val lws = WebSocket(url)
     lws.onclose = fun (evt) {
-        game.chat("Disconnected: closed")
+        game.chat("Disconnected: Closed")
         msg("Web socket closed $evt")
         connected=false
     }
@@ -62,16 +63,13 @@ fun setupSocket() {
     }
     lws.onopen = fun (evt) {
         game.chat("Connected")
-        val profileName = googleProfile()
-        if (profileName ==null || profileName.isEmpty()) {
-            game.chat("Anonymouse user")
+        if (google_id_token ==null || google_id_token.isEmpty()) {
+            //game.chat("Anonymous user")
             lws.send("anonymous")
         } else  {
-            game.chat("Trying to login as: $profileName")
-            lws.send(googleId_Token())
+            //game.chat("Trying to login with $google_id_token")
+            lws.send(google_id_token)
         }
-
-
 
         window.setInterval({ firePing() }, 1000)
         connected=true
@@ -100,6 +98,11 @@ fun setupSocket() {
                 } else {
                     game.playerMoved(pm)
                 }
+            }
+            SType.LOGIN_RESPONSE -> {
+                val lr = fs.loginResponse!!
+                game.chat("Succesfully logged in as ${lr.yourName}")
+
             }
         }
     }

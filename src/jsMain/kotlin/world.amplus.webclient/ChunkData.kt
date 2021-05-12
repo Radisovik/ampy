@@ -38,7 +38,7 @@ class ChunkData(val shortName :ChunkShortName) {
             game.terrainGroup.remove(currentMesh!!)
         }
         if (exposedFaces.isNotEmpty()) {
-            println("Got some faces to draw: ${exposedFaces.size} ${shortName}")
+            //println("Got some faces to draw: ${exposedFaces.size} ${shortName}")
             currentMesh = createMesh()
             game.terrainGroup.attach(currentMesh!!)
         }

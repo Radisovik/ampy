@@ -3,11 +3,12 @@
 <head>
     <style>
        #ping {
-           top: 0;
+           top: 50%;
+           right: 0;
            text-align: right;
            color: red;
            z-index: 2;
-           position:relative;
+           position:fixed;
            -webkit-user-select: none;
        }
        #position {
@@ -46,6 +47,13 @@
            top: 100%;
            transform: translateY(-100%);
        }
+       .g-signin2 {
+           top: 0;
+           right:0;
+           z-index: 2;
+           position:fixed;
+
+       }
     </style>
 
     <meta charset="UTF-8">
@@ -60,14 +68,30 @@
 
 <div id="root">
 </div>
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
 <div id="ping"></div>
 <div id="position"></div>
 <div id="renderarea"></div>
 <div id="msg"></div>
-
-
+<script>
+    function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    }
+    function signOut() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            console.log('User signed out.');
+        });
+    }
+</script>
+<a href="#" onclick="signOut();">Sign out</a>
 <div id="chatarea" class="chat"></div>
-
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<meta name="google-signin-client_id" content="402173895467-6qa2efadumtv82ks1e9cfmglhq07n0j3.apps.googleusercontent.com">
 <script src="genjs/amplus_packed.js"></script>
 <script src="amplus.js"></script>
 </body>

@@ -3,6 +3,7 @@ package world.amplus.server
 import world.amplus.common.FromClient
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.http.content.*
 import io.ktor.routing.routing
@@ -64,6 +65,7 @@ fun main(args:Array<String>) {
         install(CallLogging) {
             level = Level.INFO
         }
+        install(CachingHeaders)
         routing {
             webSocket("/socket") { // websocketSession
                 val cc = ConnectedClient(this)

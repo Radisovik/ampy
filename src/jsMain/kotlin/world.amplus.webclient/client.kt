@@ -71,7 +71,7 @@ fun setupSocket() {
                 val now = Date.now()
                 processTerrain(fs.terrainUpdate!!)
                 val delta = Date.now() -now
-                println("Time to process ${fs.terrainUpdate!!.chunkName} --> ${delta}ms")
+                //println("Time to process ${fs.terrainUpdate!!.chunkName} --> ${delta}ms")
             }
 
             SType.PLAYER_MOVED -> {

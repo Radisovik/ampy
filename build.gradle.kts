@@ -90,6 +90,7 @@ kotlin {
                 implementation("net.sf.trove4j:trove4j:2.1.0")
                 implementation("com.github.davidmoten:hilbert-curve:0.2.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
+                implementation("com.google.api-client:google-api-client:1.31.2")
             }
         }
         val jvmTest by getting {

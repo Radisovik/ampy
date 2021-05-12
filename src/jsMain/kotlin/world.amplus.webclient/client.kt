@@ -29,7 +29,9 @@ fun main() {
 var ws :WebSocket? = null
 var connected = false;
 
-
+fun googleId_Token() : String {
+    return js("id_token")
+}
 
 fun googleProfile() : String {
     return js("profile_name")
@@ -61,6 +63,7 @@ fun setupSocket() {
     lws.onopen = fun (evt) {
         game.chat("Connected")
         game.chat("Profile name: ${googleProfile()}")
+        lws.send(googleId_Token())
         window.setInterval({ firePing() }, 1000)
         connected=true
     }

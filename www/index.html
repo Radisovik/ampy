@@ -81,7 +81,6 @@
     var profile_id
     var googleUser2
     function onSignIn(googleUser) {
-        amplus.world.amplus.webclient.onSignIn(googleUser)
         googleUser2 = googleUser
         basicProfile = googleUser.getBasicProfile()
         id_token = googleUser.getAuthResponse().id_token;
@@ -91,6 +90,7 @@
         console.log('Name: ' + profile_name);
         console.log('Image URL: ' + profile.getImageUrl());
         console.log('Email: ' + email); // This is null if the 'email' scope is not present.
+        konSignIn(googleUser)
     }
     function signOut() {
         var auth2 = gapi.auth2.getAuthInstance();

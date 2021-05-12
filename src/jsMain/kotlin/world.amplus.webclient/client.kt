@@ -29,9 +29,7 @@ fun main() {
 var ws :WebSocket? = null
 var connected = false;
 
-fun onSignIn(googleUser:dynamic) {
-    println("Google user: ${JSON.stringify(googleUser)}")
-}
+
 
 fun googleProfile() : String {
     return js("profile_name")
@@ -62,7 +60,7 @@ fun setupSocket() {
     }
     lws.onopen = fun (evt) {
         game.chat("Connected")
-//        game.chat("Profile name: $googleProfile)
+        game.chat("Profile name: ${googleProfile()}")
         window.setInterval({ firePing() }, 1000)
         connected=true
     }

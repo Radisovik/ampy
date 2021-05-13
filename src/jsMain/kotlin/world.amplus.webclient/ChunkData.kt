@@ -44,7 +44,7 @@ class ChunkData(val shortName :ChunkShortName) {
         }
         val delta = Timers.finish("TU")
         if (delta !=Double.MIN_VALUE) {
-            game.chat("Estimated: ${delta}ms for round trip terrain change")
+            println("Estimated: ${delta}ms for round trip terrain change")
         }
 
     }

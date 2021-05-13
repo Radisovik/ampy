@@ -8,9 +8,8 @@ data class ChunkShortName(val cx: Int, val cz: Int)
 
 @Serializable
 enum class SType {
-    PONG, TIME, LOGIN_RESPONSE, TERRAIN_UPDATE, PLAYER_MOVED,ASK_FOR_NAME,CHAT_MSG
+    PONG, TIME, LOGIN_RESPONSE, TERRAIN_UPDATE, PLAYER_MOVED,ASK_FOR_NAME,CHAT_MSG, YOU_AT
 }
-
 
 @Serializable
 enum class CType {
@@ -28,6 +27,7 @@ data class FromServer(val type : SType) {
     var loginResponse: LoginResponse?=null
     var askForName: AskCharacterName?=null
     var chatMsg: ChatMessage?=null
+    var youAreAt: YouAreAt?=null
     companion object {
         fun pong(id: Double) = FromServer(SType.PONG).apply { pong = Pong(id) }
         fun terrainUpdate(tu:TerrainUpdates) = FromServer(SType.TERRAIN_UPDATE).apply { terrainUpdate = tu}
@@ -35,6 +35,7 @@ data class FromServer(val type : SType) {
         fun loginResponse(name:String, pos:V3f, orientation: V4f) = FromServer(SType.LOGIN_RESPONSE).apply { loginResponse = LoginResponse(name, pos, orientation)}
         fun askForName(details:String) = FromServer(SType.ASK_FOR_NAME).apply { askForName = AskCharacterName(details) }
         fun chatMessage(cm:ChatMessage) = FromServer(SType.CHAT_MSG).apply { chatMsg = cm }
+        fun youAreAt(at:V3f, orientation: V4f) = FromServer(SType.YOU_AT).apply { youAreAt = YouAreAt (at, orientation) }
     }
 }
 
@@ -78,6 +79,9 @@ data class FromClient(val type: CType) {
         }
     }
 }
+
+@Serializable
+data class YouAreAt(val at:V3f, val orientation: V4f)
 
 @Serializable
 data class ISaid(val msg:String)

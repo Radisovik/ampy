@@ -21,23 +21,11 @@ val game :Game by lazy {
 }
 
 fun main() {
-    game.animate()
     window.asDynamic()["setupSocket"] = ::setupSocket
-//    window.onload = fun(evt) {
-//        setupSocket()
-//    }
 }
 
 var ws :WebSocket? = null
 var connected = false;
-
-fun google_id_token() : String {
-    return js("google_id_token")
-}
-
-fun google_name() : String {
-    return js("google_name")
-}
 
 fun url() :String {
     println("Original href ${window.location.href}")
@@ -74,10 +62,16 @@ fun setupSocket(google_id_token:String?) {
         window.setInterval({ firePing() }, 1000)
         connected=true
     }
+    var animationStarted = false
     lws.onmessage = fun(msg:MessageEvent) {
        // println("Message type: ${msg.data}")
         val data = msg.data.toString()
         val fs = Json.decodeFromString<FromServer>(data)
+
+        if(fs.type!=SType.PONG) {
+            println("Recv: ${fs.type}")
+        }
+
         when (fs.type) {
             SType.PONG -> {
                 val delta = Date.now() - fs.pong!!.time
@@ -85,10 +79,12 @@ fun setupSocket(google_id_token:String?) {
             }
             SType.TIME -> TODO()
             SType.TERRAIN_UPDATE -> {
-                val now = Date.now()
                 processTerrain(fs.terrainUpdate!!)
-                val delta = Date.now() -now
-                //println("Time to process ${fs.terrainUpdate!!.chunkName} --> ${delta}ms")
+                val welcomeBox = document.getElementById("welcome")!!
+                welcomeBox.setAttribute("style", "visibility: hidden")
+                if(!animationStarted)
+                    animationStarted = true
+                    game.animate() // start animation/movment..etc!
             }
 
             SType.PLAYER_MOVED -> {
@@ -101,8 +97,11 @@ fun setupSocket(google_id_token:String?) {
             }
             SType.LOGIN_RESPONSE -> {
                 val lr = fs.loginResponse!!
+                val welcomeBox = document.getElementById("welcome")!!
+                welcomeBox.innerHTML = "Welcome to the game ${lr.characterName} waiting for terrain to load"
+                welcomeBox.setAttribute("style", "visibility: visible")
                 game.camera.position.set(lr.youAreAt.x, lr.youAreAt.y, lr.youAreAt.z)
-                game.chat("Succesfully logged in as ${lr.characterName} our location is ${lr.youAreAt}")
+                game.maybeSendPosition(Date.now()) // send our initial position.. so we get subscribed terrain!
 
             }
             SType.ASK_FOR_NAME -> {
@@ -117,6 +116,12 @@ fun setupSocket(google_id_token:String?) {
             SType.CHAT_MSG -> {
                 val cm = fs.chatMsg!!
                 game.chat("${cm.from}> ${cm.msg}")
+            }
+            SType.YOU_AT -> {
+                val at = fs.youAreAt!!
+                game.camera.position.set(at.at.x, at.at.y, at.at.z)
+                val o = at.orientation
+                game.camera.quaternion.set(o.x, o.y, o.z, o.w)
             }
         }
     }
@@ -187,7 +192,7 @@ var chunks = mutableMapOf<ChunkShortName, ChunkData>()
 fun processTerrain(tu: TerrainUpdates) {
    // println("Exciting we got a terrain update! ${tu}")
     val key = tu.chunkName
-    chunks.getOrPut(key) { ChunkData(key,) }.process(tu)
+    chunks.getOrPut(key) { ChunkData(key) }.process(tu)
 
 
 }

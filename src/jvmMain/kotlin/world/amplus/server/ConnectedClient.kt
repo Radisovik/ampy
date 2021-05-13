@@ -63,6 +63,7 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
 
     }
     fun send(fromServer:FromServer) {
+        logger.info("Sending a ${fromServer.type}")
         send(fromServer.encodeToString())
     }
 
@@ -201,8 +202,22 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
 
 
     private fun handleChatText(chatText: ISaid) {
-        val cm = ChatMessage("", playerName, chatText.msg)
-        broadcast(cm)
+        if (chatText.msg.startsWith("/")) {
+            handleChatCommand(chatText.msg.substring(1))
+        } else {
+            val cm = ChatMessage("", playerName, chatText.msg)
+            broadcast(cm)
+        }
+    }
+
+    private fun handleChatCommand(c:String) {
+        val cmd = c.toLowerCase()
+        if (cmd.startsWith("stuck")) {
+            val fs = FromServer.youAreAt(V3f(0f, 100f,0f), V4f(1f,1f,1f,1f))
+            send(fs)
+            serverSays("$playerName got stuck.. so I threw him into the sky!")
+        }
+
     }
 
 

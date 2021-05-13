@@ -71,6 +71,31 @@
            padding: 20px;
            z-index: 2;
        }
+       #chatinput {
+           position: fixed;              /* NEW */
+           left: 50%;
+           top:50%;
+           transform: translateX(-50%);     /* NEW; see note below */
+           text-align: center;
+           width: 80%;
+           padding: 20px;
+           z-index: 5;
+           background: grey;
+           color: yellow;
+       }
+       #welcome {
+           position: fixed;              /* NEW */
+           left: 50%;
+           top:50%;
+           transform: translateX(-50%);     /* NEW; see note below */
+           text-align: center;
+           width: 80%;
+           padding: 20px;
+           z-index: 2;
+           background: grey;
+           color: yellow;
+       }
+
     </style>
 
     <meta charset="UTF-8">
@@ -91,6 +116,9 @@
 <div id="position"></div>
 <div id="renderarea"></div>
 <div id="msg"></div>
+
+<input id="chatinput"  style="visibility: hidden">asdf</input>
+<div id="welcome"  style="visibility: hidden"></div>
 
 <div id="my-signin2"></div>
 <script>

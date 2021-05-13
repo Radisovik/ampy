@@ -71,37 +71,39 @@ class Game {
 
     var positionClock = 0.toDouble()
     var atLeastOnce = false
+
+
     fun animate() {
-        val tpf = clock.getDelta().toDouble()
-        if (connected) {
-            atLeastOnce = true
-        } else if (!connected && atLeastOnce) {
-            chat("We lost connection to the server -- please click refresh")
-            return
-        }
+
+            val tpf = clock.getDelta().toDouble()
+            if (connected) {
+                atLeastOnce = true
+            } else if (!connected && atLeastOnce) {
+                chat("We lost connection to the server -- please click refresh")
+                return
+            }
+
+            if (!inited) {
+                setup()
+            }
 
 
-        if (!inited) {
-            setup()
-        }
-        stats.begin()
-
-        val now = Date.now()
-        maybeSendPosition(now)
-        OtherPlayer.update(now)
+            val now = Date.now()
+            maybeSendPosition(now)
+            OtherPlayer.update(now)
 
 
 
-        cube.rotation.x -= tpf
-        cube.rotation.y -= tpf
+            cube.rotation.x -= tpf
+            cube.rotation.y -= tpf
 
-        renderer.render(scene, camera)
+            renderer.render(scene, camera)
 
-        controls?.update(tpf)
+            controls?.update(tpf)
+
+            window.requestAnimationFrame { animate() }
         stats.end()
-        window.requestAnimationFrame { animate() }
-
-        // msg("Forward: ${controls?.forward}")
+        stats.begin()
     }
 
     var controls: FirstPersonControls? = null
@@ -149,7 +151,7 @@ class Game {
     }
 
     var position = ""
-    private fun maybeSendPosition(now: Double) {
+    fun maybeSendPosition(now: Double) {
         if (!connected) {
             return
         }

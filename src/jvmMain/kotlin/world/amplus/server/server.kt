@@ -3,21 +3,23 @@ package world.amplus.server
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
-import world.amplus.common.FromClient
+import com.mongodb.MongoClient
+import com.mongodb.client.model.Filters.eq
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.http.content.*
-import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.html.*
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.slf4j.event.Level
+import world.amplus.common.FromClient
 import java.io.File
 import java.util.*
 import java.util.logging.Logger
@@ -58,6 +60,7 @@ fun main(args:Array<String>) {
         "%1\$tF %1\$tT [%4\$s] [%3\$s] %5\$s%6\$s%n")
     val logger = Logger.getLogger("Server")
 
+
     val runMode = pickPort(args)
 
     val si = File(String.format("${runMode.srf}/www/index.html"))
@@ -65,13 +68,9 @@ fun main(args:Array<String>) {
         logger.severe("index.html is missing! here is where I looked ${si.absolutePath}")
     }
 
-    val transport = NetHttpTransport.Builder().build()
-    val verifier = GoogleIdTokenVerifier.Builder(transport, GsonFactory())
-        .setAudience(Collections.singletonList("402173895467-6qa2efadumtv82ks1e9cfmglhq07n0j3.apps.googleusercontent.com"))
-        .build()
 
-    var gid=0
 
+    var clientNumber=0
     embeddedServer(Netty, port = runMode.port, host = "0.0.0.0") {
         install(WebSockets)
         install(CallLogging) {
@@ -80,31 +79,21 @@ fun main(args:Array<String>) {
         install(CachingHeaders)
         routing {
             webSocket("/socket") { // websocketSession
-
-                val frame = incoming.receive() // get their login token
-
-                if (frame is Frame.Text) {
-                    val readText = frame.readText()
-                    if (readText != "anonymous") {
-                        val idToken = verifier.verify(readText)
-                        if (idToken != null) {
-                            val payload = idToken.payload
-                            val name = payload.getValue("name").toString()
-                            val givenName = payload.getValue("given_name").toString()
-                            logger.info("name from token $name")
-                            logger.info("given name $givenName")
-                            processUser(this, incoming, name)
-                        } else {
-                            logger.severe("Failed to validate idtoken")
+                val cc = ConnectedClient(this, clientNumber++)
+                for (frame in incoming) {
+                    when (frame) {
+                        is Frame.Text -> {
+                            val text = frame.readText()
+                            val fc = ProtoBuf.decodeFromHexString<FromClient>(text)
+                            cc.process(fc)
                         }
-                    } else {
-                        val playerName = "Unknown-${gid++}"
-                        logger.info("Anonymous user assigned $playerName")
-                        processUser(this, incoming, playerName)
+                        else -> {
+                            logger.warning("Unknown frame type: $frame")
+                            break;
+                        }
                     }
-                } else {
-                    logger.severe("First web socket must be text")
                 }
+                cc.die()
             }
             static("/") {
                 staticRootFolder = File(runMode.srf)
@@ -114,23 +103,4 @@ fun main(args:Array<String>) {
             }
         }
     }.start(wait = true)
-}
-
-suspend fun processUser(ws: DefaultWebSocketServerSession, incoming: ReceiveChannel<Frame>, name: String) {
-    val cc = ConnectedClient(ws, name)
-    for (frame in incoming) {
-        when (frame) {
-            is Frame.Text -> {
-                val text = frame.readText()
-                val fc = ProtoBuf.decodeFromHexString<FromClient>(text)
-                cc.process(fc)
-            }
-            else -> {
-                logger.warning("Unknown frame type: $frame")
-                cc.die()
-                return
-            }
-        }
-    }
-    cc.die()
 }

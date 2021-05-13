@@ -2,6 +2,7 @@ package world.amplus.webclient
 
 import three.js.*
 import world.amplus.common.PlayerMoved
+import world.amplus.common.V3f
 import kotlin.js.Date
 
 class OtherPlayer(val name: String) {
@@ -12,7 +13,6 @@ class OtherPlayer(val name: String) {
     companion object {
         fun moved(pm: PlayerMoved) {
              val op = players.getOrPut(pm.name) {
-                game.chat("Hello ${pm.name}")
                 OtherPlayer(pm.name)
             }
             op.moved(pm)
@@ -89,7 +89,8 @@ class OtherPlayer(val name: String) {
 
     }
 
-    private fun moved(pm: PlayerMoved) {
+    private fun moved(p: PlayerMoved) {
+        val pm = PlayerMoved(p.name, V3f(p.position.x, p.position.y-1, p.position.z), p.orientation, p.asOf)
         lastSeen[1] = lastSeen[0]
         lastsPosition[1] = lastsPosition[0]
         lastSeen[0] = Date.now()

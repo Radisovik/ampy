@@ -1,15 +1,16 @@
 package world.amplus.webclient
 
-import ext.aspectRatio
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.serialization.decodeFromHexString
+import kotlinx.dom.createElement
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToHexString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.WebSocket
+import org.w3c.dom.events.Event
+import org.w3c.dom.events.EventListener
 import world.amplus.common.*
 import kotlin.experimental.and
 import kotlin.js.Date
@@ -47,7 +48,7 @@ fun url() :String {
     }
 }
 
-fun setupSocket(google_id_token:String) {
+fun setupSocket(google_id_token:String?) {
 
     val url = url()
     val lws = WebSocket(url)
@@ -63,13 +64,12 @@ fun setupSocket(google_id_token:String) {
     }
     lws.onopen = fun (evt) {
         game.chat("Connected")
-        if (google_id_token ==null || google_id_token.isEmpty()) {
-            //game.chat("Anonymous user")
-            lws.send("anonymous")
+        val mfc = if (google_id_token ==null || google_id_token.isEmpty()) {
+            FromClient.loginRequest("", true)
         } else  {
-            //game.chat("Trying to login with $google_id_token")
-            lws.send(google_id_token)
+            FromClient.loginRequest(google_id_token, false)
         }
+        lws.send(mfc.encode())
 
         window.setInterval({ firePing() }, 1000)
         connected=true
@@ -101,13 +101,49 @@ fun setupSocket(google_id_token:String) {
             }
             SType.LOGIN_RESPONSE -> {
                 val lr = fs.loginResponse!!
-                game.chat("Succesfully logged in as ${lr.yourName}")
+                game.camera.position.set(lr.youAreAt.x, lr.youAreAt.y, lr.youAreAt.z)
+                game.chat("Succesfully logged in as ${lr.characterName} our location is ${lr.youAreAt}")
 
+            }
+            SType.ASK_FOR_NAME -> {
+                game.chat("I should be asking for your name!")
+                val afn = fs.askForName!!
+                val element = document.getElementById("prompt")!!
+                element.setAttribute("placeholder", afn.details)
+                //element.asDynamic().defaultValue=afn.details
+             //   element.asDynamic().style.dispaly="block"
+                element.setAttribute("style", "visibility: visible")
+                element.addEventListener("change", userNamePicker)
+                game.chat("I added the prompt.. do you see it?")
+            }
+            SType.CHAT_MSG -> {
+                val cm = fs.chatMsg!!
+                game.chat("${cm.from}> ${cm.msg}")
             }
         }
     }
     ws = lws
 }
+
+private val userNamePicker : EventListener = object : EventListener {
+    override fun handleEvent(event: Event) {
+        game.chat("username picker change event")
+        val element = document.getElementById("prompt")!!
+        val fc = FromClient.pickedName(element.asDynamic().value)
+        val efc = fc.encode()
+        ws?.send(efc)
+        element.asDynamic().style.dispaly="none"
+        element.setAttribute("style", "visibility: hidden")
+        element.removeEventListener("change", this)
+        game.chat("username picker change event finished")
+    }
+}
+
+
+private fun FromClient.encode(): String {
+    return ProtoBuf.encodeToHexString(this)
+}
+
 
 data class ExposedSide(val value: Long, val tid: Int) {
     /**

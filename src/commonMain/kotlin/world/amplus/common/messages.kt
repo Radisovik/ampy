@@ -1,23 +1,24 @@
 package world.amplus.common
 
 import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 @Serializable
 data class ChunkShortName(val cx: Int, val cz: Int)
 
 @Serializable
 enum class SType {
-    PONG, TIME, LOGIN_RESPONSE, TERRAIN_UPDATE, PLAYER_MOVED
+    PONG, TIME, LOGIN_RESPONSE, TERRAIN_UPDATE, PLAYER_MOVED,ASK_FOR_NAME,CHAT_MSG
 }
 
 
 @Serializable
 enum class CType {
-    PING,LOGIN_REQUEST,IAMAT,TOOLUSE
+    PING,LOGIN_REQUEST,IAMAT,TOOLUSE,PICKED_PLAYER_NAME,ISAID
 }
 
 @Serializable
-data class PlayerMoved(val name:String, val position: V3f, val asOf:Long)
+data class PlayerMoved(val name: String, val position: V3f, val orientation: V4f, val asOf: Long)
 
 @Serializable
 data class FromServer(val type : SType) {
@@ -25,11 +26,15 @@ data class FromServer(val type : SType) {
     var terrainUpdate: TerrainUpdates? = null
     var playerMoved: PlayerMoved?=null
     var loginResponse: LoginResponse?=null
+    var askForName: AskCharacterName?=null
+    var chatMsg: ChatMessage?=null
     companion object {
         fun pong(id: Double) = FromServer(SType.PONG).apply { pong = Pong(id) }
         fun terrainUpdate(tu:TerrainUpdates) = FromServer(SType.TERRAIN_UPDATE).apply { terrainUpdate = tu}
-        fun playerMoved(name:String, pos:V3f, asOf:Long) = FromServer(SType.PLAYER_MOVED).apply { playerMoved = PlayerMoved(name, pos, asOf) }
-        fun loginResponse(time :Double, name:String, pos:V3f) = FromServer(SType.LOGIN_RESPONSE).apply { loginResponse = LoginResponse(time, name, pos)}
+        fun playerMoved(name:String, pos:V3f, orientation: V4f,asOf:Long) = FromServer(SType.PLAYER_MOVED).apply { playerMoved = PlayerMoved(name, pos, orientation, asOf) }
+        fun loginResponse(name:String, pos:V3f, orientation: V4f) = FromServer(SType.LOGIN_RESPONSE).apply { loginResponse = LoginResponse(name, pos, orientation)}
+        fun askForName(details:String) = FromServer(SType.ASK_FOR_NAME).apply { askForName = AskCharacterName(details) }
+        fun chatMessage(cm:ChatMessage) = FromServer(SType.CHAT_MSG).apply { chatMsg = cm }
     }
 }
 
@@ -38,15 +43,22 @@ data class FromClient(val type: CType) {
     var ping: Ping? = null
     var iamiat: IAmAt? = null
     var toolUse: ToolUse? = null
+    var loginRequest: LoginRequest?=null
+    var pickedPlayerName: PickedPlayerName?=null
+    var iSaid: ISaid?=null
+
     companion object {
+        fun isaid(msg:String):FromClient {
+            return FromClient(CType.ISAID).apply { iSaid = ISaid(msg) }
+        }
         fun ping(time: Double): FromClient {
             val mfc = FromClient(CType.PING)
             mfc.ping = Ping(time)
             return mfc
         }
-        fun iamat(v3i: V3f): FromClient {
+        fun iamat(pos: V3f, orientation: V4f): FromClient {
             val mfc = FromClient(CType.IAMAT)
-            mfc.iamiat = IAmAt(v3i)
+            mfc.iamiat = IAmAt(pos, orientation)
             return mfc
         }
         fun tooluse( tool:Int,  start:V3i,  end:V3i): FromClient {
@@ -54,13 +66,32 @@ data class FromClient(val type: CType) {
             mfc.toolUse = ToolUse(tool, start, end)
             return mfc
         }
+        fun loginRequest( id_token:String, anonymous:Boolean): FromClient {
+            val mfc = FromClient(CType.LOGIN_REQUEST)
+            mfc.loginRequest = LoginRequest(id_token, anonymous)
+            return mfc
+        }
+        fun pickedName(pickedName:String) :FromClient {
+            return FromClient(CType.PICKED_PLAYER_NAME).apply {
+                pickedPlayerName = PickedPlayerName(pickedName)
+            }
+        }
     }
 }
 
+@Serializable
+data class ISaid(val msg:String)
 
+@Serializable
+data class ChatMessage(val destination:String, val from:String, val msg:String)
 
 @Serializable
 data class ToolUse(val tool:Int, val start:V3i, val end:V3i)
+
+@Serializable
+data class V4f(val x: Float, val y: Float, val z: Float, val w:Float) {
+    constructor() : this(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE)
+}
 
 @Serializable
 data class V3f(val x: Float, val y: Float, val z: Float) {
@@ -107,13 +138,19 @@ enum class Side(val mask: Byte, val delta: V3i, private val otherSideOrd: Int) {
 data class TerrainUpdates(val chunkName: ChunkShortName, val addTheseFaces:List<Long>, val textures:List<Int>, val removeTheseFaces:List<Long>)
 
 @Serializable
-data class IAmAt(val v3i: V3f)
+data class IAmAt(val position: V3f, val orientation: V4f)
 
 @Serializable
-data class LoginRequest(val time: Double)
+data class LoginRequest(val id_token: String, val anonymous: Boolean)
 
 @Serializable
-data class LoginResponse(val time: Double, val yourName:String, val youAreAt:V3f)
+data class AskCharacterName(val details:String)
+
+@Serializable
+data class PickedPlayerName(val requestedName:String)
+
+@Serializable
+data class LoginResponse(val characterName:String, val youAreAt:V3f, val orientation: V4f)
 
 @Serializable
 data class Pong(val time: Double)

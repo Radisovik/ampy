@@ -60,6 +60,17 @@
            position:fixed;
 
        }
+
+       #prompt {
+           position: fixed;              /* NEW */
+           left: 50%;
+           top:50%;
+           transform: translateX(-50%);     /* NEW; see note below */
+           text-align: center;
+           width: 80%;
+           padding: 20px;
+           z-index: 2;
+       }
     </style>
 
     <meta charset="UTF-8">
@@ -74,6 +85,7 @@
 
 <div id="root">
 </div>
+<input id="prompt" style="visibility: hidden">stuff</input>
 <!--<div class="g-signin2" data-onsuccess="onSignIn"></div>-->
 <div id="ping"></div>
 <div id="position"></div>

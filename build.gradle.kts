@@ -67,6 +67,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0")
             }
         }
         val commonTest by getting {
@@ -77,7 +78,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-
+                implementation("org.mongodb:mongodb-driver:3.4.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0-RC")
                 implementation("com.google.code.gson:gson:2.8.6")
                 implementation("io.ktor:ktor-server-netty:1.5.2")
@@ -91,6 +92,7 @@ kotlin {
                 implementation("com.github.davidmoten:hilbert-curve:0.2.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
                 implementation("com.google.api-client:google-api-client:1.31.2")
+                implementation("org.mapdb:mapdb:3.0.8")
             }
         }
         val jvmTest by getting {

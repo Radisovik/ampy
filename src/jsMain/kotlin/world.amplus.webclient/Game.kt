@@ -11,6 +11,7 @@ import three.js.*
 import world.amplus.common.FromClient
 import world.amplus.common.PlayerMoved
 import world.amplus.common.V3f
+import world.amplus.common.V4f
 import kotlin.js.Date
 
 class Game {
@@ -154,7 +155,14 @@ class Game {
                     camera.position.x.toFloat(),
                     camera.position.y.toFloat(),
                     camera.position.z.toFloat()
+                ),
+                V4f(
+                    camera.quaternion.x.toFloat(),
+                    camera.quaternion.y.toFloat(),
+                    camera.quaternion.z.toFloat(),
+                    camera.quaternion.w.toFloat()
                 )
+
             )
             val encodeToHexString = ProtoBuf.encodeToHexString(iat)
             ws?.send(encodeToHexString)

@@ -9,7 +9,8 @@ class Bumper(val direction: Vector3, val camera: Camera, range: Float, val camer
     val cast = Raycaster(camera.position, direction, 0, range)
 
     fun blocked() :Boolean {
-        cast.set(game.camera.position, direction)
+        val p = game.camera.position.clone()
+        cast.set(p, direction)
         val io = cast.intersectObjects(game.terrainGroup.children)
         if (io.isNotEmpty()) {
           return true

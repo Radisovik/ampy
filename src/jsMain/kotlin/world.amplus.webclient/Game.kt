@@ -48,6 +48,7 @@ class Game {
         renderarea?.appendChild(domElement)
         setSize(window.innerWidth, window.innerHeight)
         setPixelRatio(window.devicePixelRatio)
+        shadowMap.enabled = true
 
     }
     private val cube = Mesh(BoxGeometry(1, 1, 1), MeshPhongMaterial().apply { color = Color(0x0000ff) })
@@ -62,7 +63,10 @@ class Game {
         ah.position.set(1, 1, 1)
         attach(ah)
 
-        add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
+        add(DirectionalLight(0xffffff, 1).apply {
+            position.set(-1, 2, 4)
+            castShadow = true
+        })
         add(AmbientLight(0x404040, 1))
 
         attach(terrainGroup)

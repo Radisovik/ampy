@@ -414,6 +414,9 @@ class ChunkData(val shortName :ChunkShortName) {
         bg.setAttribute("uv", BufferAttribute(uv.asDynamic(), 2))
 
         val m = Mesh(bg, groundMaterial)
+        m.castShadow = true
+        m.receiveShadow = true
+        m.name = shortName.toString()
         return m
 
 //        bg.setIndex(arrayOf(

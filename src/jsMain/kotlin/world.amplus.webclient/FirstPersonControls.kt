@@ -33,7 +33,12 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
 
     val selection = Selection(mouse, game.camera)
 
+    val ZEROV = Vector3(0f,0f,0f)
+    val arrowHelper = ArrowHelper(ZEROV, ZEROV, 5f,0x00ffff , 2f)
+
+
     init {
+        game.scene.attach(arrowHelper)
         domElement.addEventListener("mousemove", { event ->
             if (event is MouseEvent) {
                 mouse.x = (event.clientX.toFloat() / game.renderer.domElement.clientWidth.toFloat()) * 2f - 1f
@@ -165,6 +170,10 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
         jumpVector =10.toDouble()
     }
     fun forward(distance: Double) {
+    //         val v = Vector3()
+    //        camera.getWorldDirection(v)
+    //        camera.position.add(v)
+
         // move forward parallel to the xz-plan e
         // assumes camera.up is y-up
         _vector.setFromMatrixColumn(camera.matrix, 0)
@@ -184,6 +193,8 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
     val forwardFeetBumper = Bumper(Vector3(0,0,1), camera, 1f, Vector3(0,-1,0))
     val forwardHeadBumper = Bumper(Vector3(0,0,1), camera, 1f)
 
+
+
     val downBumper = Bumper(Vector3(0,-1,0), camera, 2f)
     var jumpVector=0.0
 
@@ -199,18 +210,42 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
 
         val onGround = downBumper.blocked()
 
-        if (!onGround || jumpVector>0) {  // if not on the ground
+        if (!onGround || jumpVector > 0) {  // if not on the ground
             camera.position.y += (jumpVector * tpf)
             jumpVector -= (9.8f * tpf)
 
             //println("jp $jumpVector  y ${camera.position.y} $tpf")
         }
 
-        if(!forwardHeadBumper.blocked() && !forwardFeetBumper.blocked()) {
-            if (forward) {
+        val cast = Raycaster(ZEROV, ZEROV, 0, 10f)
+
+
+
+        var dir =camera.getWorldDirection(ZEROV)
+        dir = dir.normalize()
+        val jdir = JSON.stringify(dir)
+        document.getElementById("msg")!!.innerHTML = "cv: ${JSON.stringify(camera.position)}  $jdir"
+
+        arrowHelper.position.set(camera.position.x.toDouble()-2f, camera.position.y, camera.position.z)
+        arrowHelper.setDirection(dir)
+
+        if (forward) {
+
+
+
+            cast.set(camera.position, dir)
+            val io =cast.intersectObjects(game.terrainGroup.children)
+            if (io.isEmpty()) {
+             //   camera.getWorldDirection()
                 forward(tpf * 17f)
+            } else {
+                game.chat("Sorry you can't move foward I see ${io.size} objects ahead of you! closest is: ${io[0].distance} ${io[0].`object`.name} dir ${dir}")
             }
         }
+
+
+
+
         if (backward) {
             forward(-tpf*17f)
         }
@@ -222,5 +257,8 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
         }
         camera.quaternion.setFromEuler(_euler);
         selection.update()
+        if (camera.position.y.toDouble() < -50) {
+            ws?.send(FromClient.isaid("/stuck").encode())
+        }
     }
 }

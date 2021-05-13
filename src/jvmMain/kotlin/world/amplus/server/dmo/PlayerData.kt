@@ -86,7 +86,7 @@ data class PlayerData(val playerName:String="",  val uid:String, val email:Strin
                 val start = System.currentTimeMillis()
                 for (dirtyPlayer in dirtyPlayers) {
                     val dp = playerByUID[dirtyPlayer]!!
-                    val hex = hex(pd.uid.toByteArray())
+                    val hex = hex(dp.uid.toByteArray())
                     val f = File(saveDir, "${hex}.json")
                     val pjson = gson.toJson(dp)
                     f.writeBytes(pjson.toByteArray())

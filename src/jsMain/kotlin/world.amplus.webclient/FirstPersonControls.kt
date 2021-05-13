@@ -6,6 +6,8 @@ import kotlinx.browser.window
 import kotlinx.serialization.encodeToHexString
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.w3c.dom.Element
+import org.w3c.dom.events.Event
+import org.w3c.dom.events.EventListener
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import three.js.*
@@ -65,7 +67,8 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
             }
         })
         window.document.addEventListener("keydown", { evt ->
-            if (evt is KeyboardEvent) {
+
+            if (evt is KeyboardEvent &&!takingInput) {
                 val value = true
                 when (evt.keyCode) {
                     87 -> forward = true
@@ -80,13 +83,14 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
             }
         })
         window.document.addEventListener("keyup", { evt ->
-            if (evt is KeyboardEvent) {
+            if (evt is KeyboardEvent&&!takingInput) {
                 val value = false
                 when (evt.keyCode) {
                     87 -> forward = false
                     83 -> backward = false
                     68 -> right = false
                     65 -> left = false
+                    84 -> chatWindow()
                     192, 49, 50, 51, 52, 53, 54, 55, 56, 57 -> endTool()
                     else -> {
                         println("key up ${evt.code} .. ${evt.key}  ..  ${evt.keyCode}")
@@ -101,6 +105,30 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
 
             }
         })
+    }
+    var takingInput = false
+    private fun chatWindow() {
+        takingInput = true
+        val element = document.getElementById("prompt")!!
+        element.setAttribute("placeholder", "What did you want to say?")
+        //element.asDynamic().defaultValue=afn.details
+        //   element.asDynamic().style.dispaly="block"
+        element.setAttribute("style", "visibility: visible")
+        element.asDynamic().focus()
+        element.addEventListener("change", chatPicker)
+    }
+
+    private val chatPicker : EventListener = object : EventListener {
+        override fun handleEvent(event: Event) {
+            val element = document.getElementById("prompt")!!
+            val fc =FromClient.isaid(element.asDynamic().value)
+            val efc = fc.encode()
+            ws?.send(efc)
+            element.asDynamic().style.dispaly="none"
+            element.setAttribute("style", "visibility: hidden")
+            element.removeEventListener("change", this)
+            takingInput = false
+        }
     }
 
 

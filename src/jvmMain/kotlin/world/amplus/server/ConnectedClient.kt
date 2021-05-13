@@ -35,7 +35,6 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
     val subscribedTo = HashSet<ChunkName>()
     val bs = BlockStores.blockStore(currentWorld)
     val sendQueue = ArrayBlockingQueue<String>(512)
-    private lateinit var playerData : PlayerData
     var playerName = ""
     var playerUid = ""
     var logger :Logger = Logger.getLogger("Connection $connectionNumber")
@@ -63,7 +62,6 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
         val random = java.util.Random(System.currentTimeMillis())
 
     }
-
     fun send(fromServer:FromServer) {
         send(fromServer.encodeToString())
     }
@@ -71,10 +69,11 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
     fun send(fromServer: String) {
         if (!sendQueue.offer(fromServer, 5, TimeUnit.SECONDS)) {
             logger.severe("SendQueue blocked for 5 seconds. Dropped message")
+            die()
         }
     }
 
-    suspend fun die() {
+    fun die() {
         logger.info("Cleaning up $playerName")
         connectedClients.remove(this.playerName)
         subscribedTo.forEach {
@@ -113,8 +112,7 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
                             it.value.send(msg)
                         }
                     }
-
-                    playerData.updatePosition(iat.position, iat.orientation)
+                    PlayerData.byUid(playerUid)!!.updatePosition(iat.position, iat.orientation)
 
                     val nextChunk = ChunkName(currentWorld, iat.position.x, iat.position.z)
                     if (nextChunk != currentChunk) {
@@ -285,7 +283,6 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
     private fun assignName(name:String, uid:String) {
         playerName = name
         playerUid = uid
-        playerData = PlayerData.byUid(uid)!!
         connectedClients.put(name, this)
         logger = Logger.getLogger(name)
         serverSays("Welcome $name to the game!")

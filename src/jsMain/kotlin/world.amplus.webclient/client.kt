@@ -139,8 +139,7 @@ private val userNamePicker : EventListener = object : EventListener {
     }
 }
 
-
-private fun FromClient.encode(): String {
+ fun FromClient.encode(): String {
     return ProtoBuf.encodeToHexString(this)
 }
 

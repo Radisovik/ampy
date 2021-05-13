@@ -86,6 +86,7 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
             if (evt is KeyboardEvent&&!takingInput) {
                 val value = false
                 when (evt.keyCode) {
+                    32 -> jump()
                     87 -> forward = false
                     83 -> backward = false
                     68 -> right = false
@@ -125,6 +126,7 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
             val efc = fc.encode()
             ws?.send(efc)
             element.asDynamic().style.dispaly="none"
+            element.asDynamic().value=""
             element.setAttribute("style", "visibility: hidden")
             element.removeEventListener("change", this)
             takingInput = false
@@ -161,6 +163,10 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
     var mdx = 0
     var mdy = 0
 
+    fun jump() {
+        game.chat("jump")
+        _vector.add(Vector3(0,1f,0))
+    }
     fun forward(distance: Float) {
         // move forward parallel to the xz-plane
         // assumes camera.up is y-up

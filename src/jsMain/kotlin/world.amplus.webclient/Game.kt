@@ -15,6 +15,7 @@ import world.amplus.common.V4f
 import kotlin.js.Date
 
 class Game {
+
     private var inited = false
     init {
         window.onresize = {

@@ -106,7 +106,6 @@ fun setupSocket(google_id_token:String?) {
 
             }
             SType.ASK_FOR_NAME -> {
-                game.chat("I should be asking for your name!")
                 val afn = fs.askForName!!
                 val element = document.getElementById("prompt")!!
                 element.setAttribute("placeholder", afn.details)
@@ -114,7 +113,6 @@ fun setupSocket(google_id_token:String?) {
              //   element.asDynamic().style.dispaly="block"
                 element.setAttribute("style", "visibility: visible")
                 element.addEventListener("change", userNamePicker)
-                game.chat("I added the prompt.. do you see it?")
             }
             SType.CHAT_MSG -> {
                 val cm = fs.chatMsg!!

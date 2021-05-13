@@ -1,6 +1,7 @@
 package world.amplus.webclient
 
 import ext.minus
+import ext.plus
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.serialization.encodeToHexString
@@ -163,24 +164,26 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
     var mdx = 0
     var mdy = 0
 
+    var ji=0
     fun jump() {
-        game.chat("jump")
-        _vector.add(Vector3(0,1f,0))
+        game.chat("jump ${ji++} $jumpVector   ${camera.position.y.toDouble()}")
+        jumpVector =5.toDouble()
     }
-    fun forward(distance: Float) {
-        // move forward parallel to the xz-plane
+    fun forward(distance: Double) {
+        // move forward parallel to the xz-plan e
         // assumes camera.up is y-up
         _vector.setFromMatrixColumn(camera.matrix, 0)
         _vector.crossVectors(camera.up, _vector)
         camera.position.addScaledVector(_vector, distance)
     }
 
-    fun right(distance: Float) {
+    fun right(distance: Double) {
         _vector.setFromMatrixColumn(camera.matrix, 0)
         camera.position.addScaledVector(_vector, distance)
     }
 
-    fun update() {
+    var jumpVector=0.0
+    fun update(tpf: Double) {
         if (!document.hasFocus()) {
             forward = false
             backward = false
@@ -188,17 +191,26 @@ class FirstPersonControls(val domElement: Element, val camera: Camera) {
             left = false
             mouseIsDown = false
         }
+        if (jumpVector >0) {
+
+        }
+
+        if (camera.position.y.toDouble() > 0 || jumpVector>0) {  // if not on the ground
+            camera.position.y += (jumpVector * tpf)
+            jumpVector -= (9.8f * tpf)
+            println("jp $jumpVector  y ${camera.position.y} $tpf")
+         }
         if (forward) {
-            forward(.5f)
+            forward(tpf*17f)
         }
         if (backward) {
-            forward(-.5f)
+            forward(-tpf*17f)
         }
         if (left) {
-            right(-.5f)
+            right(-tpf*17f)
         }
         if (right) {
-            right(.5f)
+            right(tpf*17f)
         }
         selection.update()
     }

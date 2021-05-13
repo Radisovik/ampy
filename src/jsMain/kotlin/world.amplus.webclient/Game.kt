@@ -17,6 +17,7 @@ import kotlin.js.Date
 class Game {
 
     private var inited = false
+
     init {
         window.onresize = {
             camera.aspect = window.aspectRatio
@@ -25,6 +26,7 @@ class Game {
         }
 
     }
+
     private val clock = Clock()
     val camera = PerspectiveCamera(75, window.aspectRatio, 0.1, 1000).apply {
         position.z = 5
@@ -33,10 +35,10 @@ class Game {
         showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
         val root = document.getElementById("root")
         root?.appendChild(domElement)
-        with (domElement.style) {
-            position="fixed"
-            top="0px"
-            left="0px"
+        with(domElement.style) {
+            position = "fixed"
+            top = "0px"
+            left = "0px"
         }
     }
 
@@ -53,11 +55,11 @@ class Game {
     val terrainGroup = Group()
 
     val scene = Scene().apply {
-        cube.position.set(2,1,2)
+        cube.position.set(2, 1, 2)
         attach(cube)
 
         val ah = AxesHelper(5)
-        ah.position.set(1,1,1)
+        ah.position.set(1, 1, 1)
         attach(ah)
 
         add(DirectionalLight(0xffffff, 1).apply { position.set(-1, 2, 4) })
@@ -70,53 +72,55 @@ class Game {
     var positionClock = 0.toDouble()
     var atLeastOnce = false
     fun animate() {
+        val tpf = clock.getDelta().toDouble()
         if (connected) {
             atLeastOnce = true
-        }else if(!connected && atLeastOnce){
+        } else if (!connected && atLeastOnce) {
             chat("We lost connection to the server -- please click refresh")
             return
         }
 
-        stats.begin()
+
         if (!inited) {
             setup()
         }
+        stats.begin()
+
         val now = Date.now()
         maybeSendPosition(now)
         OtherPlayer.update(now)
 
 
-        val delta = clock.getDelta().toDouble()
 
-        cube.rotation.x -= delta
-        cube.rotation.y -= delta
+        cube.rotation.x -= tpf
+        cube.rotation.y -= tpf
 
         renderer.render(scene, camera)
 
-        controls?.update()
+        controls?.update(tpf)
         stats.end()
         window.requestAnimationFrame { animate() }
 
-       // msg("Forward: ${controls?.forward}")
+        // msg("Forward: ${controls?.forward}")
     }
 
-    var controls : FirstPersonControls? = null
+    var controls: FirstPersonControls? = null
 
     val PI = 3.1456
 
-    val  MAX_CHAT_MESSAGES =5
+    val MAX_CHAT_MESSAGES = 5
 
-   val chatMessages = Array<String>(MAX_CHAT_MESSAGES){""}
+    val chatMessages = Array<String>(MAX_CHAT_MESSAGES) { "" }
 
-    fun chat(msg:String) {
+    fun chat(msg: String) {
         val chatArea = window.document.getElementById("chatarea")!!
-        for (i in MAX_CHAT_MESSAGES-2 downTo 0) {
-            chatMessages[i+1] = chatMessages[i]
+        for (i in MAX_CHAT_MESSAGES - 2 downTo 0) {
+            chatMessages[i + 1] = chatMessages[i]
         }
-        chatMessages[0]= msg
-        var chatText =""
+        chatMessages[0] = msg
+        var chatText = ""
 
-        for (i in MAX_CHAT_MESSAGES-1 downTo 0) {
+        for (i in MAX_CHAT_MESSAGES - 1 downTo 0) {
             chatText += chatMessages[i]
             chatText += "<br>"
         }
@@ -126,20 +130,20 @@ class Game {
     private fun setup() {
         val pg = PlaneGeometry(200, 200, 32)
 
-        val groundTexture =TextureLoader().load("atlas.png")
+        val groundTexture = TextureLoader().load("atlas.png")
 
-        groundTexture.repeat.set(1,1)
+        groundTexture.repeat.set(1, 1)
         groundTexture.anisotropy = 16
 
-        val groundMaterial =  MeshStandardMaterial().apply { this.map = groundTexture}
+        val groundMaterial = MeshStandardMaterial().apply { this.map = groundTexture }
 
         val m = Mesh(pg, groundMaterial)
         m.position.y = -.8f
-        m.rotation.x = - PI / 2
+        m.rotation.x = -PI / 2
         m.receiveShadow = true
         scene.add(m)
-        camera.lookAt(3,2,3)
-        camera.position.set(1,4,1)
+        camera.lookAt(3, 2, 3)
+        camera.position.set(1, 4, 1)
         inited = true
         controls = FirstPersonControls(renderer.domElement, camera)
     }
@@ -171,7 +175,7 @@ class Game {
             val iy = camera.position.y.toInt()
             val iz = camera.position.z.toInt()
             val pmsg = "($ix,$iy,$iz)"
-            if (position!=pmsg) {
+            if (position != pmsg) {
                 document.getElementById("position")?.innerHTML = pmsg
                 position = pmsg
             }

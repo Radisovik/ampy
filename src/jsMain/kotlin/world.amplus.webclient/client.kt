@@ -127,7 +127,6 @@ fun setupSocket(google_id_token:String?) {
 
 private val userNamePicker : EventListener = object : EventListener {
     override fun handleEvent(event: Event) {
-        game.chat("username picker change event")
         val element = document.getElementById("prompt")!!
         val fc = FromClient.pickedName(element.asDynamic().value)
         val efc = fc.encode()
@@ -135,7 +134,7 @@ private val userNamePicker : EventListener = object : EventListener {
         element.asDynamic().style.dispaly="none"
         element.setAttribute("style", "visibility: hidden")
         element.removeEventListener("change", this)
-        game.chat("username picker change event finished")
+        element.asDynamic().focus()
     }
 }
 

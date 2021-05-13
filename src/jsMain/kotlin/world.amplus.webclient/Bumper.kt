@@ -4,17 +4,15 @@ import three.js.Camera
 import three.js.Raycaster
 import three.js.Vector3
 
-class Bumper(val direction : Vector3, val camera: Camera, range:Float) {
+class Bumper(val direction: Vector3, val camera: Camera, range: Float, val cameraMod :Vector3) {
+    constructor(direction: Vector3, camera: Camera, range: Float) :this(direction,camera,range, Vector3(0f,0f,0f))
     val cast = Raycaster(camera.position, direction, 0, range)
 
     fun blocked() :Boolean {
-        cast.set(camera.position, direction)
+        cast.set(game.camera.position, direction)
         val io = cast.intersectObjects(game.terrainGroup.children)
         if (io.isNotEmpty()) {
-            val nio = io[0]
-            if (nio.distance.toFloat() < 2f) {
-                return true
-            }
+          return true
         }
         return false
     }

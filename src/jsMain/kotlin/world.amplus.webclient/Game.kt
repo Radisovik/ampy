@@ -100,8 +100,10 @@ class Game {
             renderer.render(scene, camera)
 
             controls?.update(tpf)
+            window.setTimeout( {
+                window.requestAnimationFrame { animate() }
+            }, 1000/60)
 
-            window.requestAnimationFrame { animate() }
         stats.end()
         stats.begin()
     }

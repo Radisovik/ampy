@@ -51,6 +51,8 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
                 }
                 wss.send(msg)
             }
+            wss.close()
+            logger.info("Websocket sender closed")
         }
     }
     companion object {
@@ -68,6 +70,9 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
     }
 
     fun send(fromServer: String) {
+        if(sendQueue.size>5) {
+            logger.warning("The send queue is now ${sendQueue.size}")
+        }
         if (!sendQueue.offer(fromServer, 5, TimeUnit.SECONDS)) {
             logger.severe("SendQueue blocked for 5 seconds. Dropped message")
             die()
@@ -80,6 +85,7 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
         subscribedTo.forEach {
             bs.unsubscribe(it, this)
         }
+        send("die")
     }
 
     suspend fun process(fc: FromClient) {
@@ -298,6 +304,13 @@ class ConnectedClient(private val wss: DefaultWebSocketServerSession, val connec
     private fun assignName(name:String, uid:String) {
         playerName = name
         playerUid = uid
+        val oldCC = connectedClients.remove(name)
+
+        if (oldCC!=null) {
+            logger.severe("Uh oh.. someone with that name is already playing!")
+            oldCC.die()
+        }
+
         connectedClients.put(name, this)
         logger = Logger.getLogger(name)
         serverSays("Welcome $name to the game!")

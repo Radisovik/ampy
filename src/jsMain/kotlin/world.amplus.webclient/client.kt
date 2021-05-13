@@ -36,6 +36,7 @@ fun url() :String {
     }
 }
 
+
 fun setupSocket(google_id_token:String?) {
 
     val url = url()
@@ -62,7 +63,7 @@ fun setupSocket(google_id_token:String?) {
         window.setInterval({ firePing() }, 1000)
         connected=true
     }
-    var animationStarted = false
+    var animationStarted = 0
     lws.onmessage = fun(msg:MessageEvent) {
        // println("Message type: ${msg.data}")
         val data = msg.data.toString()
@@ -82,9 +83,12 @@ fun setupSocket(google_id_token:String?) {
                 processTerrain(fs.terrainUpdate!!)
                 val welcomeBox = document.getElementById("welcome")!!
                 welcomeBox.setAttribute("style", "visibility: hidden")
-                if(!animationStarted)
-                    animationStarted = true
+                if(animationStarted==0) {
+                    println("we got at least one TU -- lets turn animation on")
+                    game.chat("$animationStarted Start animation")
+                    animationStarted++
                     game.animate() // start animation/movment..etc!
+                }
             }
 
             SType.PLAYER_MOVED -> {
